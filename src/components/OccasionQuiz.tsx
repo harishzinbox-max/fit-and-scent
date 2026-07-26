@@ -1,9 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import type { QuizAnswers } from "@/lib/types";
+import type { QuizAnswers, BodyBuild } from "@/lib/types";
 
 interface Props {
+  detectedBodyBuild: BodyBuild;
+  detectedConfidence: number;
   onSubmit: (answers: QuizAnswers) => void;
 }
 
@@ -16,20 +18,22 @@ const OCCASIONS: { value: QuizAnswers["occasion"]; label: string }[] = [
   { value: "formal-evening", label: "Formal evening" },
 ];
 
-const BODY_BUILDS: { value: QuizAnswers["bodyBuild"]; label: string }[] = [
-  { value: "rectangle", label: "Rectangle — shoulders, waist, hips similar width" },
-  { value: "hourglass", label: "Hourglass — shoulders and hips balanced, defined waist" },
-  { value: "pear", label: "Pear — hips wider than shoulders" },
-  { value: "apple", label: "Apple — fuller through the midsection" },
-  { value: "inverted-triangle", label: "Inverted triangle — shoulders wider than hips" },
+const BODY_BUILDS: { value: BodyBuild; label: string }[] = [
+  { value: "rectangle", label: "Rectangle" },
+  { value: "hourglass", label: "Hourglass" },
+  { value: "pear", label: "Pear" },
+  { value: "apple", label: "Apple" },
+  { value: "inverted-triangle", label: "Inverted triangle" },
 ];
 
-export default function OccasionQuiz({ onSubmit }: Props) {
+export default function OccasionQuiz({ detectedBodyBuild, detectedConfidence, onSubmit }: Props) {
   const [occasion, setOccasion] = useState<QuizAnswers["occasion"]>("office");
   const [season, setSeason] = useState<QuizAnswers["season"]>("year-round");
   const [scentFamily, setScentFamily] = useState<QuizAnswers["scentFamily"]>("no-preference");
   const [timeOfDay, setTimeOfDay] = useState<QuizAnswers["timeOfDay"]>("day");
-  const [bodyBuild, setBodyBuild] = useState<QuizAnswers["bodyBuild"]>("rectangle");
+  const [bodyBuild, setBodyBuild] = useState<BodyBuild>(detectedBodyBuild);
+
+  const isLowConfidence = detectedConfidence < 0.45;
 
   return (
     <form
@@ -39,8 +43,35 @@ export default function OccasionQuiz({ onSubmit }: Props) {
         onSubmit({ occasion, season, scentFamily, timeOfDay, bodyBuild });
       }}
     >
-      <span className="upload-mark">02</span>
+      <span className="upload-mark">03</span>
       <h2 className="quiz-title">A few details</h2>
+
+      <div className="quiz-field">
+        <span>
+          Body build{" "}
+          <span className="rec-confidence" style={{ display: "inline" }}>
+            (auto-detected, {(detectedConfidence * 100).toFixed(0)}% confidence)
+          </span>
+        </span>
+        {isLowConfidence && (
+          <p className="rec-sub" style={{ marginTop: "-0.25rem" }}>
+            Your shoulders and hips look proportionate, so we couldn&apos;t tell if you have a defined waist from
+            this photo. We defaulted to Rectangle — tap another option below if that&apos;s not right.
+          </p>
+        )}
+        <div className="accessory-picker">
+          {BODY_BUILDS.map((b) => (
+            <button
+              type="button"
+              key={b.value}
+              className={`chip ${bodyBuild === b.value ? "chip-active" : ""}`}
+              onClick={() => setBodyBuild(b.value)}
+            >
+              {b.label}
+            </button>
+          ))}
+        </div>
+      </div>
 
       <label className="quiz-field">
         Occasion
@@ -48,17 +79,6 @@ export default function OccasionQuiz({ onSubmit }: Props) {
           {OCCASIONS.map((o) => (
             <option key={o.value} value={o.value}>
               {o.label}
-            </option>
-          ))}
-        </select>
-      </label>
-
-      <label className="quiz-field">
-        Body build
-        <select value={bodyBuild} onChange={(e) => setBodyBuild(e.target.value as QuizAnswers["bodyBuild"])}>
-          {BODY_BUILDS.map((b) => (
-            <option key={b.value} value={b.value}>
-              {b.label}
             </option>
           ))}
         </select>

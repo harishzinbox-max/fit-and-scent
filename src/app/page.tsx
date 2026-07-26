@@ -3,17 +3,20 @@
 import { useState } from "react";
 import PhotoUpload from "@/components/PhotoUpload";
 import FaceScanner from "@/components/FaceScanner";
+import BodyScanner from "@/components/BodyScanner";
 import OccasionQuiz from "@/components/OccasionQuiz";
 import RecommendationResults from "@/components/RecommendationResults";
-import type { FaceAnalysisResult, QuizAnswers } from "@/lib/types";
+import type { FaceAnalysisResult, BodyAnalysisResult, QuizAnswers } from "@/lib/types";
 
-type Stage = "upload" | "scanning" | "quiz" | "results";
+type Stage = "upload" | "scanning" | "body-upload" | "body-scanning" | "quiz" | "results";
 
 export default function Home() {
   const [stage, setStage] = useState<Stage>("upload");
   const [image, setImage] = useState<HTMLImageElement | null>(null);
   const [landmarks, setLandmarks] = useState<{ x: number; y: number }[]>([]);
   const [faceResult, setFaceResult] = useState<FaceAnalysisResult | null>(null);
+  const [bodyImage, setBodyImage] = useState<HTMLImageElement | null>(null);
+  const [bodyResult, setBodyResult] = useState<BodyAnalysisResult | null>(null);
   const [answers, setAnswers] = useState<QuizAnswers | null>(null);
 
   return (
@@ -26,6 +29,10 @@ export default function Home() {
       <main className="page-main">
         {stage === "upload" && (
           <PhotoUpload
+            stepNumber="01"
+            title="Add a front-facing photo"
+            hint="Even lighting, face centered, no sunglasses."
+            previewAlt="Uploaded portrait"
             onImageReady={(img) => {
               setImage(img);
               setStage("scanning");
@@ -39,13 +46,38 @@ export default function Home() {
             onResult={(result, lm) => {
               setFaceResult(result);
               setLandmarks(lm);
+              setStage("body-upload");
+            }}
+          />
+        )}
+
+        {stage === "body-upload" && (
+          <PhotoUpload
+            stepNumber="02"
+            title="Add a full-body photo"
+            hint="Standing straight, facing the camera, arms slightly away from your body."
+            previewAlt="Uploaded full-body photo"
+            onImageReady={(img) => {
+              setBodyImage(img);
+              setStage("body-scanning");
+            }}
+          />
+        )}
+
+        {stage === "body-scanning" && bodyImage && (
+          <BodyScanner
+            image={bodyImage}
+            onResult={(result) => {
+              setBodyResult(result);
               setStage("quiz");
             }}
           />
         )}
 
-        {stage === "quiz" && (
+        {stage === "quiz" && bodyResult && (
           <OccasionQuiz
+            detectedBodyBuild={bodyResult.build}
+            detectedConfidence={bodyResult.confidence}
             onSubmit={(a) => {
               setAnswers(a);
               setStage("results");
@@ -59,7 +91,7 @@ export default function Home() {
       </main>
 
       <footer className="page-footer">
-        <p>Face-shape and skin-tone reading happens on your device. Nothing is uploaded to a server.</p>
+        <p>Face-shape, skin-tone, and body-build reading happens on your device. Nothing is uploaded to a server.</p>
       </footer>
     </div>
   );

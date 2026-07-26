@@ -24,6 +24,17 @@ export interface FaceAnalysisResult {
   confidence: number; // 0-1, based on how cleanly ratios matched a bucket
 }
 
+export interface BodyRatios {
+  shoulderToHip: number; // shoulder width / hip width
+}
+
+export interface BodyAnalysisResult {
+  build: BodyBuild;
+  ratios: BodyRatios;
+  confidence: number; // 0-1 — low when shoulder/hip are close (ambiguous without a waist measurement)
+  autoDetected: boolean; // false once the user manually overrides the chip
+}
+
 export type Occasion =
   | "office"
   | "wedding-guest"
