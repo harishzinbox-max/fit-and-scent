@@ -5,6 +5,7 @@ import type { FaceAnalysisResult, QuizAnswers } from "@/lib/types";
 import { recommendDress } from "@/lib/rules/dressRules";
 import { recommendFragrance } from "@/lib/rules/fragranceRules";
 import AccessoryOverlay from "./AccessoryOverlay";
+import GeneratedLook from "./GeneratedLook";
 
 interface Props {
   image: HTMLImageElement;
@@ -25,6 +26,7 @@ export default function RecommendationResults({ image, landmarks, faceResult, an
 
   const dress = recommendDress(faceResult.shape, answers.bodyBuild, answers.occasion);
   const fragrance = recommendFragrance(answers);
+  const dressPrompt = `${dress.silhouette}, with a ${dress.neckline}`;
 
   return (
     <div className="results">
@@ -72,6 +74,8 @@ export default function RecommendationResults({ image, landmarks, faceResult, an
               ))}
             </ul>
           </section>
+
+          <GeneratedLook image={image} dressPrompt={dressPrompt} />
 
           <section className="rec-card">
             <h3>What to wear (scent)</h3>
