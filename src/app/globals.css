@@ -1,0 +1,312 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+  Design tokens — "atelier ticket" direction.
+  Palette: deep plum ink background, brass accent, dusty rose secondary,
+  warm paper text. Chosen to avoid the generic cream+terracotta and
+  near-black+neon defaults.
+*/
+:root {
+  --ink: #1e1522;
+  --ink-raised: #271b2c;
+  --paper: #f1e9dc;
+  --paper-dim: #cabdae;
+  --brass: #c9a15c;
+  --rose: #c97b84;
+  --line: rgba(241, 233, 220, 0.14);
+
+  --font-display: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-data: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--font-body);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
+.page {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 3rem 1.5rem 4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+  min-height: 100%;
+}
+
+.page-header {
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 1.5rem;
+}
+
+.brand-mark {
+  font-family: var(--font-display);
+  font-size: 1.75rem;
+  letter-spacing: 0.02em;
+  color: var(--paper);
+}
+
+.brand-tag {
+  margin-top: 0.4rem;
+  color: var(--paper-dim);
+  font-size: 0.95rem;
+}
+
+.page-main {
+  flex: 1;
+}
+
+.page-footer {
+  border-top: 1px solid var(--line);
+  padding-top: 1.25rem;
+  color: var(--paper-dim);
+  font-size: 0.8rem;
+}
+
+.upload-mark,
+.rec-card h3::before {
+  font-family: var(--font-data);
+  color: var(--brass);
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.upload-card {
+  display: flex;
+  justify-content: center;
+}
+
+.upload-dropzone,
+.preview-wrap {
+  width: 100%;
+  max-width: 420px;
+  border: 1px dashed var(--paper-dim);
+  border-radius: 4px;
+  padding: 3rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--ink-raised);
+  cursor: pointer;
+  text-align: center;
+  transition: border-color 0.15s ease;
+}
+
+.upload-dropzone:hover,
+.upload-dropzone:focus-visible {
+  border-color: var(--brass);
+  outline: none;
+}
+
+.upload-title {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+}
+
+.upload-hint {
+  color: var(--paper-dim);
+  font-size: 0.85rem;
+}
+
+.preview-wrap {
+  padding: 0;
+  overflow: hidden;
+  position: relative;
+}
+
+.preview-img {
+  width: 100%;
+  display: block;
+}
+
+.preview-swap {
+  padding: 0.6rem;
+  font-size: 0.8rem;
+  color: var(--paper-dim);
+}
+
+.scanner {
+  display: flex;
+  justify-content: center;
+  padding: 3rem 0;
+}
+
+.scanner-status {
+  font-family: var(--font-data);
+  color: var(--brass);
+}
+
+.scanner-error {
+  color: var(--rose);
+}
+
+.quiz {
+  max-width: 480px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+.quiz-title,
+.results h2 {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  margin-bottom: 0.25rem;
+}
+
+.quiz-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.85rem;
+  color: var(--paper-dim);
+}
+
+.quiz-field select {
+  background: var(--ink-raised);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 0.6rem 0.7rem;
+  color: var(--paper);
+  font-size: 0.95rem;
+}
+
+.quiz-submit {
+  margin-top: 0.75rem;
+  background: var(--brass);
+  color: var(--ink);
+  border: none;
+  border-radius: 4px;
+  padding: 0.8rem 1.2rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.quiz-submit:hover {
+  filter: brightness(1.08);
+}
+
+.results-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+}
+
+@media (min-width: 720px) {
+  .results-grid {
+    grid-template-columns: 320px 1fr;
+    align-items: start;
+  }
+}
+
+.overlay-wrap {
+  position: relative;
+  width: 100%;
+}
+
+.result-photo {
+  width: 100%;
+  display: block;
+  border-radius: 4px;
+}
+
+.overlay-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.accessory-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.chip {
+  border: 1px solid var(--line);
+  background: var(--ink-raised);
+  color: var(--paper-dim);
+  border-radius: 999px;
+  padding: 0.4rem 0.85rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.chip-active {
+  border-color: var(--brass);
+  color: var(--brass);
+}
+
+.results-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.rec-card {
+  border: 1px dashed var(--line);
+  border-radius: 4px;
+  padding: 1.25rem 1.4rem;
+  background: var(--ink-raised);
+}
+
+.rec-card h3 {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  margin-bottom: 0.5rem;
+}
+
+.rec-headline {
+  font-size: 1.05rem;
+  color: var(--paper);
+  margin-bottom: 0.25rem;
+}
+
+.rec-confidence {
+  font-family: var(--font-data);
+  font-size: 0.78rem;
+  color: var(--brass);
+}
+
+.rec-sub {
+  color: var(--paper-dim);
+  font-size: 0.9rem;
+  margin-bottom: 0.15rem;
+}
+
+.rec-avoid {
+  color: var(--rose);
+}
+
+.rec-reasoning {
+  margin-top: 0.6rem;
+  padding-left: 1.1rem;
+  color: var(--paper-dim);
+  font-size: 0.82rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
