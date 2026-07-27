@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
     if (!geminiResponse.ok) {
       const errText = await geminiResponse.text();
       return NextResponse.json(
-        { error: `Gemini API error (${geminiResponse.status}): ${errText.slice(0, 300)}` },
+        { error: `Gemini API error (${geminiResponse.status}): ${errText}` },
         { status: 502 }
       );
     }
