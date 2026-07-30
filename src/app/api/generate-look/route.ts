@@ -75,7 +75,7 @@ export async function POST(req: NextRequest) {
         { status: 502 }
       );
     }
-
+    console.log("DEBUG parts:", JSON.stringify(parts));
     return NextResponse.json({
       imageBase64: imagePart.inline_data.data,
       mimeType: imagePart.inline_data.mime_type ?? "image/png",
