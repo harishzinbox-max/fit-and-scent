@@ -61,7 +61,7 @@ export async function POST(req: NextRequest) {
 
     const data = await geminiResponse.json();
     const parts = data?.candidates?.[0]?.content?.parts ?? [];
-    const imagePart = parts.find((p: { inline_data?: { data?: string; mime_type?: string } }) => p.inline_data?.data);
+    const imagePart = parts.find((p: { inlineData?: { data?: string; mimeType?: string } }) => p.inlineData?.data);
 
     if (!imagePart) {
       const textPart = parts.find((p: { text?: string }) => p.text)?.text;
@@ -77,8 +77,8 @@ export async function POST(req: NextRequest) {
     }
     console.log("DEBUG parts:", JSON.stringify(parts));
     return NextResponse.json({
-      imageBase64: imagePart.inline_data.data,
-      mimeType: imagePart.inline_data.mime_type ?? "image/png",
+      imageBase64: imagePart.inlineData.data,
+      mimeType: imagePart.inlineData.mimeType ?? "image/png",
     });
   } catch (err) {
     return NextResponse.json(
