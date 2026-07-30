@@ -64,8 +64,14 @@ export async function POST(req: NextRequest) {
     const imagePart = parts.find((p: { inline_data?: { data?: string; mime_type?: string } }) => p.inline_data?.data);
 
     if (!imagePart) {
+      const textPart = parts.find((p: { text?: string }) => p.text)?.text;
+      const finishReason = data?.candidates?.[0]?.finishReason;
       return NextResponse.json(
-        { error: "Gemini didn't return an image. Try a different, clearer photo." },
+        {
+          error: "Gemini didn't return an image. Try a different, clearer photo.",
+          debugFinishReason: finishReason ?? null,
+          debugText: textPart ?? null,
+        },
         { status: 502 }
       );
     }
