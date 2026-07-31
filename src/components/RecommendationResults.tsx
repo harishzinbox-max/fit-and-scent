@@ -40,10 +40,10 @@ export default function RecommendationResults({ image, landmarks, faceResult, an
   const fragrance = recommendFragrance(answers);
   const dressPrompt = `${outfit.silhouette}, with a ${outfit.neckline}`;
 
-   const hairstyle =
-   answers.gender === "male"
-     ? recommendMenHairstyle(faceResult.shape, answers.occasion)
-     : recommendWomenHairstyle(faceResult.shape, answers.occasion);
+  const hairstyle =
+    answers.gender === "male"
+      ? recommendMenHairstyle(faceResult.shape, answers.occasion)
+      : recommendWomenHairstyle(faceResult.shape, answers.occasion);
   const hairPrompt = hairstyle.style;
 
   return (
@@ -104,19 +104,18 @@ export default function RecommendationResults({ image, landmarks, faceResult, an
             </ul>
           </section>
 
-          -          <GeneratedLook image={image} dressPrompt={dressPrompt} gender={answers.gender} />
-+          <section className="rec-card">
-+            <h3>Hairstyle</h3>
-+            <p className="rec-headline">{hairstyle.style}</p>
-+            <p className="rec-sub rec-avoid">Steer away from: {hairstyle.avoid}</p>
-+            <ul className="rec-reasoning">
-+              {hairstyle.reasoning.map((r, i) => (
-+                <li key={i}>{r}</li>
-+              ))}
-+            </ul>
-+          </section>
-+
-+          
+          <section className="rec-card">
+            <h3>Hairstyle</h3>
+            <p className="rec-headline">{hairstyle.style}</p>
+            <p className="rec-sub rec-avoid">Steer away from: {hairstyle.avoid}</p>
+            <ul className="rec-reasoning">
+              {hairstyle.reasoning.map((r, i) => (
+                <li key={i}>{r}</li>
+              ))}
+            </ul>
+          </section>
+
+          <GeneratedLook image={image} dressPrompt={dressPrompt} hairPrompt={hairPrompt} gender={answers.gender} />
 
           <section className="rec-card">
             <h3>What to wear (scent)</h3>
