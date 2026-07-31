@@ -7,12 +7,13 @@ import { imageToBase64 } from "@/lib/imageToBase64";
 interface Props {
   image: HTMLImageElement;
   dressPrompt: string;
+  hairPrompt: string;
   gender: Gender;
 }
 
 type Status = "idle" | "generating" | "done" | "error";
 
-export default function GeneratedLook({ image, dressPrompt, gender }: Props) {
+export default function GeneratedLook({ image, dressPrompt, hairPrompt, gender }: Props) {
   const [status, setStatus] = useState<Status>("idle");
   const [resultUrl, setResultUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -25,6 +26,7 @@ export default function GeneratedLook({ image, dressPrompt, gender }: Props) {
 
       const prompt =
         `Edit this photo so the ${gender === "male" ? "man" : "woman"} is wearing: ${dressPrompt}. ` +
+        `Also restyle their hair to: ${hairPrompt}. ` +
         `Keep their face, identity, body proportions, and pose exactly the same. ` +
         `Photorealistic, natural lighting matching the original photo.`;
 

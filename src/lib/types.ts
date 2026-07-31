@@ -67,7 +67,11 @@ export interface DressRecommendation {
   avoid: string;
   reasoning: string[];
 }
-
+export interface HairstyleRecommendation {
+  style: string;
+ avoid: string;
+reasoning: string[];
+}
 export interface FragranceRecommendation {
   family: string;
   intensity: string;
