@@ -21,22 +21,11 @@ export default function ShopThisLook({ searchTerms }: Props) {
           </p>
           <div className="accessory-picker">
             {buildShoppingLinks(term).map((link) => (
-              
-                key={link.source}
-                href={link.url}
-                target="_blank"
-                rel="noopener noreferrer sponsored"
-                className="chip"
-              >
+              <a key={link.source} href={link.url} target="_blank" rel="noopener noreferrer sponsored" className="chip">
                 {link.label}
               </a>
             ))}
-            
-              href={buildMyntraLink(term).url}
-              target="_blank"
-              rel="noopener noreferrer sponsored"
-              className="chip"
-            >
+            <a href={buildMyntraLink(term).url} target="_blank" rel="noopener noreferrer sponsored" className="chip">
               Shop on Myntra
             </a>
           </div>
