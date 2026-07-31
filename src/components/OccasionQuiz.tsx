@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { QuizAnswers, BodyBuild, Gender, AgeGroup } from "@/lib/types";
 import { WOMEN_WEAR_OPTIONS, MEN_WEAR_OPTIONS, type WearPreference } from "@/lib/rules/appropriatenessCheck";
+import { WOMEN_HAIRSTYLE_OPTIONS, MEN_HAIRSTYLE_OPTIONS } from "@/lib/rules/hairstyleOptions";
 
 interface Props {
   detectedBodyBuild: BodyBuild;
@@ -58,7 +59,8 @@ export default function OccasionQuiz({
 
   const wearOptions = gender === "male" ? MEN_WEAR_OPTIONS : WOMEN_WEAR_OPTIONS;
   const [wearPreference, setWearPreference] = useState<WearPreference>(wearOptions[0].value);
-
+  const hairOptions = gender === "male" ? MEN_HAIRSTYLE_OPTIONS : WOMEN_HAIRSTYLE_OPTIONS;
+  const [hairPreference, setHairPreference] = useState<string>(hairOptions[0].value);
   const isLowConfidence = detectedConfidence < 0.45;
   const isAgeLowConfidence = detectedAgeConfidence < 0.4;
 
@@ -66,6 +68,8 @@ export default function OccasionQuiz({
     setGender(next);
     const nextOptions = next === "male" ? MEN_WEAR_OPTIONS : WOMEN_WEAR_OPTIONS;
     setWearPreference(nextOptions[0].value);
+    const nextHairOptions = next === "male" ? MEN_HAIRSTYLE_OPTIONS : WOMEN_HAIRSTYLE_OPTIONS;
+    setHairPreference(nextHairOptions[0].value);
   }
 
   return (
@@ -73,7 +77,7 @@ export default function OccasionQuiz({
       className="quiz"
       onSubmit={(e) => {
         e.preventDefault();
-        onSubmit({ occasion, season, scentFamily, timeOfDay, bodyBuild, gender, ageGroup, wearPreference });
+        onSubmit({ occasion, season, scentFamily, timeOfDay, bodyBuild, gender, ageGroup, wearPreference, hairPreference });
       }}
     >
       <span className="upload-mark">03</span>
@@ -173,6 +177,21 @@ export default function OccasionQuiz({
             </button>
           ))}
         </div>
+        <div className="quiz-field">
+        <span>How would you like your hair?</span>
+        <div className="accessory-picker">
+          {hairOptions.map((h) => (
+            <button
+              type="button"
+              key={h.value}
+              className={`chip ${hairPreference === h.value ? "chip-active" : ""}`}
+              onClick={() => setHairPreference(h.value)}
+            >
+              {h.label}
+            </button>
+          ))}
+        </div>
+      </div>
       </div>
 
       <label className="quiz-field">

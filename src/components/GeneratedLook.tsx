@@ -5,6 +5,7 @@ import type { Gender } from "@/lib/types";
 import { imageToBase64 } from "@/lib/imageToBase64";
 import { saveLook } from "@/lib/wardrobeStorage";
 import type { Occasion } from "@/lib/types";
+import ShopThisLook from "./ShopThisLook";
 
 interface Props {
   image: HTMLImageElement;
@@ -123,6 +124,52 @@ image,
           >
             Try again
           </button>
+          <div style={{ marginTop: "1rem" }}>
+            <ShopThisLook
+              searchTerms={[
+                { label: "Outfit", term: `${gender === "male" ? "men's" : "women's"} ${outfitSummary.split(",")[0]}` },
+                { label: "Hairstyle products", term: hairstyleSummary.split(",")[0] },
+                { label: "Accessories", term: fragranceSummary },
+              ]}
+            />
+          </div>
+          {status === "done" && resultUrl && (
+        <div style={{ marginTop: "0.75rem" }}>
+          <img src={resultUrl} alt="Generated look" className="result-photo" />
+          <button
+            type="button"
+            className="quiz-submit"
+            style={{ marginTop: "0.6rem" }}
+            onClick={handleSaveToWardrobe}
+            disabled={saved}
+          >
+            {saved ? "Saved to your wardrobe ✓" : "Save to my wardrobe"}
+          </button>
+          <button
+            type="button"
+            className="chip"
+            style={{ marginTop: "0.6rem" }}
+            onClick={() => {
+              setStatus("idle");
+              setResultUrl(null);
+              setResultData(null);
+              setSaved(false);
+            }}
+          >
+            Try again
+          </button>
+          <div style={{ marginTop: "1rem" }}>
+            <ShopThisLook
+              searchTerms={[
+                { label: "Outfit", term: `${gender === "male" ? "men's" : "women's"} ${outfitSummary.split(",")[0]}` },
+                { label: "Hairstyle products", term: hairstyleSummary.split(",")[0] },
+                { label: "Accessories", term: accessorySummary },
+                { label: "Fragrance", term: `${fragranceSummary.split("—")[0].trim()} perfume` },
+              ]}
+            />
+          </div>
+        </div>
+      )}
         </div>
       )}
     </section>

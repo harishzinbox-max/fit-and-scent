@@ -6,12 +6,14 @@ import { recommendDress } from "@/lib/rules/dressRules";
 import { recommendMenswear } from "@/lib/rules/menswearRules";
 import { recommendWomenHairstyle } from "@/lib/rules/womenHairstyleRules";
 import { recommendMenHairstyle } from "@/lib/rules/menHairstyleRules";
+import { buildWomenHairstyleFromPreference } from "@/lib/rules/womenHairstyleRules";
+import { buildMenHairstyleFromPreference } from "@/lib/rules/menHairstyleRules";
 import { recommendFragrance } from "@/lib/rules/fragranceRules";
 import { checkAppropriateness, wearLabel, type WearPreference } from "@/lib/rules/appropriatenessCheck";
 import { recommendAccessories } from "@/lib/rules/accessoryRules";
 import AccessoryOverlay from "./AccessoryOverlay";
 import GeneratedLook from "./GeneratedLook";
-import ShopThisLook from "./ShopThisLook";
+
 
 interface Props {
   image: HTMLImageElement;
@@ -42,10 +44,18 @@ export default function RecommendationResults({ image, landmarks, faceResult, an
   const fragrance = recommendFragrance(answers);
   const dressPrompt = `${outfit.silhouette}, with a ${outfit.neckline}`;
 
-  const hairstyle =
+const hairstyle =
+    answers.gender === "male"
+      ? buildMenHairstyleFromPreference(answers.hairPreference, answers.occasion)
+    : buildWomenHairstyleFromPreference(answers.hairPreference, answers.occasion);
+
+  // Face-shape-optimized alternative, shown only as an informational note —
+  // the user's own pick above is always what gets applied.
+  const faceShapeSuggestion =
     answers.gender === "male"
       ? recommendMenHairstyle(faceResult.shape, answers.occasion)
       : recommendWomenHairstyle(faceResult.shape, answers.occasion);
+  const suggestionDiffers = faceShapeSuggestion.style !== hairstyle.style;
   const hairPrompt = hairstyle.style;
 
   const accessories = recommendAccessories(answers.gender, answers.occasion);
@@ -118,6 +128,12 @@ export default function RecommendationResults({ image, landmarks, faceResult, an
                 <li key={i}>{r}</li>
               ))}
             </ul>
+            {suggestionDiffers && (
+              <p className="rec-sub" style={{ marginTop: "0.4rem" }}>
+                Based on your face shape, we&apos;d also suggest: {faceShapeSuggestion.style} —{" "}
+                {faceShapeSuggestion.reasoning[0]}
+              </p>
+            )}
           </section>
 <section className="rec-card">
             <h3>Accessories</h3>
@@ -140,13 +156,7 @@ export default function RecommendationResults({ image, landmarks, faceResult, an
             fragranceSummary={`${fragrance.family} — ${fragrance.exampleNotes}`}
             accessorySummary={accessorySummary}
           />
-<ShopThisLook
-           searchTerms={[
-              { label: "Outfit", term: `${answers.gender === "male" ? "men's" : "women's"} ${outfit.silhouette.split(",")[0]}` },
-              { label: "Accessories", term: accessories.items[0] },
-              { label: "Fragrance", term: `${fragrance.family} perfume` },
-            ]}
-          />
+
 
 
           <section className="rec-card">

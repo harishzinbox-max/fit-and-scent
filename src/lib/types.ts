@@ -59,6 +59,7 @@ export interface QuizAnswers {
   gender: Gender;
   ageGroup: AgeGroup;
   wearPreference: string;
+  hairPreference: string;
 }
 
 export interface DressRecommendation {
