@@ -15,6 +15,7 @@ interface Props {
    outfitSummary: string;
  hairstyleSummary: string;
   fragranceSummary: string;
+  accessorySummary: string;
 }
 
 type Status = "idle" | "generating" | "done" | "error";
@@ -28,6 +29,7 @@ image,
   outfitSummary,
   hairstyleSummary,
   fragranceSummary,
+  accessorySummary,
 }: Props) {
   const [status, setStatus] = useState<Status>("idle");
   const [resultUrl, setResultUrl] = useState<string | null>(null);
@@ -43,6 +45,7 @@ image,
       const prompt =
         `Edit this photo so the ${gender === "male" ? "man" : "woman"} is wearing: ${dressPrompt}. ` +
         `Also restyle their hair to: ${hairPrompt}. ` +
+        `Add these accessories naturally: ${accessorySummary}. ` +
         `Keep their face, identity, body proportions, and pose exactly the same. ` +
         `Photorealistic, natural lighting matching the original photo.`;
 
@@ -75,6 +78,7 @@ image,
       outfitSummary,
       hairstyleSummary,
       fragranceSummary,
+      accessorySummary,
     });
     setSaved(true);
   }

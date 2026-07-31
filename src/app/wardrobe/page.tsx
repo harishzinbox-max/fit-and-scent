@@ -45,6 +45,7 @@ export default function WardrobePage() {
                 <p className="rec-headline">{look.outfitSummary}</p>
                 <p className="rec-sub">Hair: {look.hairstyleSummary}</p>
                 <p className="rec-sub">Scent: {look.fragranceSummary}</p>
+                <p className="rec-sub">Accessories: {look.accessorySummary}</p>
                 <p className="rec-confidence">
                   {look.occasion.replace("-", " ")} · saved {new Date(look.createdAt).toLocaleDateString()}
                 </p>

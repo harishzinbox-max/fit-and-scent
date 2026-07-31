@@ -88,4 +88,10 @@ export interface SavedLook {
   outfitSummary: string;
   hairstyleSummary: string;
   fragranceSummary: string;
+  accessorySummary: string;
+}
+export interface ShoppingLink {
+ label: string;
+ url: string;
+ source: "Amazon" | "Flipkart" | "Myntra";
 }

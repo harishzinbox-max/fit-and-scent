@@ -8,8 +8,10 @@ import { recommendWomenHairstyle } from "@/lib/rules/womenHairstyleRules";
 import { recommendMenHairstyle } from "@/lib/rules/menHairstyleRules";
 import { recommendFragrance } from "@/lib/rules/fragranceRules";
 import { checkAppropriateness, wearLabel, type WearPreference } from "@/lib/rules/appropriatenessCheck";
+import { recommendAccessories } from "@/lib/rules/accessoryRules";
 import AccessoryOverlay from "./AccessoryOverlay";
 import GeneratedLook from "./GeneratedLook";
+import ShopThisLook from "./ShopThisLook";
 
 interface Props {
   image: HTMLImageElement;
@@ -45,6 +47,9 @@ export default function RecommendationResults({ image, landmarks, faceResult, an
       ? recommendMenHairstyle(faceResult.shape, answers.occasion)
       : recommendWomenHairstyle(faceResult.shape, answers.occasion);
   const hairPrompt = hairstyle.style;
+
+  const accessories = recommendAccessories(answers.gender, answers.occasion);
+  const accessorySummary = accessories.items.join(", ");
 
   return (
     <div className="results">
@@ -114,7 +119,15 @@ export default function RecommendationResults({ image, landmarks, faceResult, an
               ))}
             </ul>
           </section>
-
+<section className="rec-card">
+            <h3>Accessories</h3>
+            <ul className="rec-reasoning">
+              {accessories.items.map((item, i) => (
+                <li key={i}>{item}</li>
+             ))}
+            </ul>
+            <p className="rec-sub">{accessories.reasoning[0]}</p>
+          </section>
           
           <GeneratedLook
             image={image}
@@ -125,7 +138,16 @@ export default function RecommendationResults({ image, landmarks, faceResult, an
             outfitSummary={outfit.silhouette}
             hairstyleSummary={hairstyle.style}
             fragranceSummary={`${fragrance.family} — ${fragrance.exampleNotes}`}
+            accessorySummary={accessorySummary}
           />
+<ShopThisLook
+           searchTerms={[
+              { label: "Outfit", term: `${answers.gender === "male" ? "men's" : "women's"} ${outfit.silhouette.split(",")[0]}` },
+              { label: "Accessories", term: accessories.items[0] },
+              { label: "Fragrance", term: `${fragrance.family} perfume` },
+            ]}
+          />
+
 
           <section className="rec-card">
             <h3>What to wear (scent)</h3>
