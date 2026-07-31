@@ -54,7 +54,9 @@ export function recommendMenHairstyle(faceShape: FaceShape, occasion: Occasion):
       `Styling: ${styling} fits a ${occasion.replace("-", " ")} setting.`,
     ],
   };
-  export function buildMenHairstyleFromPreference(
+}
+
+export function buildMenHairstyleFromPreference(
   preference: string,
   occasion: Occasion
 ): HairstyleRecommendation {
@@ -64,5 +66,4 @@ export function recommendMenHairstyle(faceShape: FaceShape, occasion: Occasion):
     avoid: "",
     reasoning: [`Styling: ${styling} fits a ${occasion.replace("-", " ")} setting.`],
   };
-}
 }
