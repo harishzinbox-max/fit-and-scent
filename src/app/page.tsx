@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import PhotoUpload from "@/components/PhotoUpload";
 import FaceScanner from "@/components/FaceScanner";
 import BodyScanner from "@/components/BodyScanner";
@@ -24,6 +25,9 @@ export default function Home() {
       <header className="page-header">
         <span className="brand-mark">Fit&nbsp;&amp;&nbsp;Scent</span>
         <p className="brand-tag">A stylist that shows its work — not just a filter.</p>
+        <Link href="/wardrobe" className="chip" style={{ display: "inline-block", marginTop: "0.5rem" }}>
+         My wardrobe
+         </Link>
       </header>
 
       <main className="page-main">

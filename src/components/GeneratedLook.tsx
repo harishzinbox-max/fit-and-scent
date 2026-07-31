@@ -3,21 +3,37 @@
 import { useState } from "react";
 import type { Gender } from "@/lib/types";
 import { imageToBase64 } from "@/lib/imageToBase64";
+import { saveLook } from "@/lib/wardrobeStorage";
+import type { Occasion } from "@/lib/types";
 
 interface Props {
   image: HTMLImageElement;
   dressPrompt: string;
   hairPrompt: string;
   gender: Gender;
+  occasion: Occasion;
+   outfitSummary: string;
+ hairstyleSummary: string;
+  fragranceSummary: string;
 }
 
 type Status = "idle" | "generating" | "done" | "error";
 
-export default function GeneratedLook({ image, dressPrompt, hairPrompt, gender }: Props) {
+export default function GeneratedLook({
+image,
+  dressPrompt,
+  hairPrompt,
+  gender,
+  occasion,
+  outfitSummary,
+  hairstyleSummary,
+  fragranceSummary,
+}: Props) {
   const [status, setStatus] = useState<Status>("idle");
   const [resultUrl, setResultUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-
+ const [resultData, setResultData] = useState<{ imageBase64: string; mimeType: string } | null>(null);
+  const [saved, setSaved] = useState(false);
   async function handleGenerate() {
     setStatus("generating");
     setError(null);
@@ -42,13 +58,26 @@ export default function GeneratedLook({ image, dressPrompt, hairPrompt, gender }
       }
 
       setResultUrl(`data:${data.mimeType};base64,${data.imageBase64}`);
+      setResultData({ imageBase64: data.imageBase64, mimeType: data.mimeType });
       setStatus("done");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
       setStatus("error");
     }
   }
-
+ function handleSaveToWardrobe() {
+    if (!resultData) return;
+    saveLook({
+      imageBase64: resultData.imageBase64,
+      mimeType: resultData.mimeType,
+      occasion,
+      gender,
+      outfitSummary,
+      hairstyleSummary,
+      fragranceSummary,
+    });
+    setSaved(true);
+  }
   return (
     <section className="rec-card">
       <h3>See it on you</h3>
@@ -70,11 +99,22 @@ export default function GeneratedLook({ image, dressPrompt, hairPrompt, gender }
           <img src={resultUrl} alt="Generated look" className="result-photo" />
           <button
             type="button"
+            className="quiz-submit"
+            style={{ marginTop: "0.6rem" }}
+            onClick={handleSaveToWardrobe}
+            disabled={saved}
+          >
+            {saved ? "Saved to your wardrobe ✓" : "Save to my wardrobe"}
+          </button>
+          <button
+            type="button"
             className="chip"
             style={{ marginTop: "0.6rem" }}
             onClick={() => {
               setStatus("idle");
               setResultUrl(null);
+              setResultData(null);
+              setSaved(false);
             }}
           >
             Try again

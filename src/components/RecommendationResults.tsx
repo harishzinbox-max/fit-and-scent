@@ -115,7 +115,17 @@ export default function RecommendationResults({ image, landmarks, faceResult, an
             </ul>
           </section>
 
-          <GeneratedLook image={image} dressPrompt={dressPrompt} hairPrompt={hairPrompt} gender={answers.gender} />
+          
+          <GeneratedLook
+            image={image}
+            dressPrompt={dressPrompt}
+            hairPrompt={hairPrompt}
+            gender={answers.gender}
+            occasion={answers.occasion}
+            outfitSummary={outfit.silhouette}
+            hairstyleSummary={hairstyle.style}
+            fragranceSummary={`${fragrance.family} — ${fragrance.exampleNotes}`}
+          />
 
           <section className="rec-card">
             <h3>What to wear (scent)</h3>

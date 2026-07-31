@@ -78,3 +78,14 @@ export interface FragranceRecommendation {
   exampleNotes: string;
   reasoning: string[];
 }
+export interface SavedLook {
+  id: string;
+  createdAt: number;
+ imageBase64: string;
+  mimeType: string;
+ occasion: Occasion;
+  gender: Gender;
+  outfitSummary: string;
+  hairstyleSummary: string;
+  fragranceSummary: string;
+}
