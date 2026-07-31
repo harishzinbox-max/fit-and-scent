@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { Gender } from "@/lib/types";
+import { imageToBase64 } from "@/lib/imageToBase64";
 
 interface Props {
   image: HTMLImageElement;
