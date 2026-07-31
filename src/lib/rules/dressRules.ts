@@ -1,4 +1,4 @@
-import type { DressRecommendation, FaceShape, BodyBuild, Occasion } from "../types";
+import type { DressRecommendation, FaceShape, BodyBuild, Occasion, AgeGroup } from "../types";
 
 /**
  * Face-shape -> neckline/silhouette guidance.
@@ -74,15 +74,23 @@ const OCCASION_CATEGORY: Record<Occasion, string> = {
   "casual-day": "relaxed separates — trousers or a casual dress",
   "formal-evening": "a floor-length gown or formal jumpsuit",
 };
-
+const AGE_STYLE_NOTE: Record<AgeGroup, string> = {
+  "18-25": "with room to lean trend-forward and use bolder colors",
+  "26-40": "balancing polish with everyday comfort",
+  "41-60": "leaning classic and tailored rather than trend-driven",
+  "60+": "prioritizing comfortable fit and timeless tailoring over closely fitted trend pieces",
+};
 export function recommendDress(
   faceShape: FaceShape,
   bodyBuild: BodyBuild,
-  occasion: Occasion
+  occasion: Occasion,
+  ageGroup: AgeGroup,
+  categoryOverride?: string
 ): DressRecommendation {
   const face = FACE_SHAPE_GUIDANCE[faceShape];
   const body = BODY_BUILD_GUIDANCE[bodyBuild];
-  const category = OCCASION_CATEGORY[occasion];
+  const category = categoryOverride ?? OCCASION_CATEGORY[occasion];
+  const ageNote = AGE_STYLE_NOTE[ageGroup];
 
   return {
     silhouette: `${category}, in ${body.silhouette}`,
@@ -91,7 +99,7 @@ export function recommendDress(
     reasoning: [
       `Neckline: ${face.neckline} — ${face.why}.`,
       `Silhouette: ${body.silhouette} — ${body.why}.`,
-      `Category: ${category} fits a ${occasion.replace("-", " ")} setting.`,
+      `Category: ${category} fits a ${occasion.replace("-", " ")} setting, ${ageNote}.`,
     ],
   };
 }

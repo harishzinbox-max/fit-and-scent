@@ -9,6 +9,9 @@ export type FaceShape =
 export type SkinTone = "fair-cool" | "fair-warm" | "medium-cool" | "medium-warm" | "deep-cool" | "deep-warm";
 
 export type BodyBuild = "rectangle" | "hourglass" | "pear" | "apple" | "inverted-triangle";
+export type Gender = "male" | "female";
+
+export type AgeGroup = "18-25" | "26-40" | "41-60" | "60+";
 
 export interface FaceRatios {
   jawToCheek: number; // jaw width / cheekbone width
@@ -22,6 +25,8 @@ export interface FaceAnalysisResult {
   ratios: FaceRatios;
   skinTone: SkinTone;
   confidence: number; // 0-1, based on how cleanly ratios matched a bucket
+estimatedAgeGroup: AgeGroup;
+ageConfidence: number; // 0-1 — texture-based estimation is rough, so this is intentionally capped low
 }
 
 export interface BodyRatios {
@@ -51,6 +56,9 @@ export interface QuizAnswers {
   scentFamily: "fresh" | "floral" | "woody" | "oriental" | "no-preference";
   timeOfDay: "day" | "evening";
   bodyBuild: BodyBuild;
+  gender: Gender;
+  ageGroup: AgeGroup;
+  wearPreference: string;
 }
 
 export interface DressRecommendation {

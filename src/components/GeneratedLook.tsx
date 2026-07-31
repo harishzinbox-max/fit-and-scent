@@ -1,16 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { imageToBase64 } from "@/lib/imageToBase64";
+import type { Gender } from "@/lib/types";
 
 interface Props {
   image: HTMLImageElement;
   dressPrompt: string;
+  gender: Gender;
 }
 
 type Status = "idle" | "generating" | "done" | "error";
 
-export default function GeneratedLook({ image, dressPrompt }: Props) {
+export default function GeneratedLook({ image, dressPrompt, gender }: Props) {
   const [status, setStatus] = useState<Status>("idle");
   const [resultUrl, setResultUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -22,7 +23,7 @@ export default function GeneratedLook({ image, dressPrompt }: Props) {
       const { base64, mimeType } = imageToBase64(image);
 
       const prompt =
-        `Edit this photo so the person is wearing: ${dressPrompt}. ` +
+        `Edit this photo so the ${gender === "male" ? "man" : "woman"} is wearing: ${dressPrompt}. ` +
         `Keep their face, identity, body proportions, and pose exactly the same. ` +
         `Photorealistic, natural lighting matching the original photo.`;
 

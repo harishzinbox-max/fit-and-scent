@@ -1,11 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import type { QuizAnswers, BodyBuild } from "@/lib/types";
+import type { QuizAnswers, BodyBuild, Gender, AgeGroup } from "@/lib/types";
+import { WOMEN_WEAR_OPTIONS, MEN_WEAR_OPTIONS, type WearPreference } from "@/lib/rules/appropriatenessCheck";
 
 interface Props {
   detectedBodyBuild: BodyBuild;
   detectedConfidence: number;
+  detectedAgeGroup: AgeGroup;
+  detectedAgeConfidence: number;
   onSubmit: (answers: QuizAnswers) => void;
 }
 
@@ -26,25 +29,97 @@ const BODY_BUILDS: { value: BodyBuild; label: string }[] = [
   { value: "inverted-triangle", label: "Inverted triangle" },
 ];
 
-export default function OccasionQuiz({ detectedBodyBuild, detectedConfidence, onSubmit }: Props) {
+const GENDERS: { value: Gender; label: string }[] = [
+  { value: "female", label: "Female" },
+  { value: "male", label: "Male" },
+];
+
+const AGE_GROUPS: { value: AgeGroup; label: string }[] = [
+  { value: "18-25", label: "18–25" },
+  { value: "26-40", label: "26–40" },
+  { value: "41-60", label: "41–60" },
+  { value: "60+", label: "60+" },
+];
+
+export default function OccasionQuiz({
+  detectedBodyBuild,
+  detectedConfidence,
+  detectedAgeGroup,
+  detectedAgeConfidence,
+  onSubmit,
+}: Props) {
+  const [gender, setGender] = useState<Gender>("female");
   const [occasion, setOccasion] = useState<QuizAnswers["occasion"]>("office");
   const [season, setSeason] = useState<QuizAnswers["season"]>("year-round");
   const [scentFamily, setScentFamily] = useState<QuizAnswers["scentFamily"]>("no-preference");
   const [timeOfDay, setTimeOfDay] = useState<QuizAnswers["timeOfDay"]>("day");
   const [bodyBuild, setBodyBuild] = useState<BodyBuild>(detectedBodyBuild);
+  const [ageGroup, setAgeGroup] = useState<AgeGroup>(detectedAgeGroup);
+
+  const wearOptions = gender === "male" ? MEN_WEAR_OPTIONS : WOMEN_WEAR_OPTIONS;
+  const [wearPreference, setWearPreference] = useState<WearPreference>(wearOptions[0].value);
 
   const isLowConfidence = detectedConfidence < 0.45;
+  const isAgeLowConfidence = detectedAgeConfidence < 0.4;
+
+  function handleGenderChange(next: Gender) {
+    setGender(next);
+    const nextOptions = next === "male" ? MEN_WEAR_OPTIONS : WOMEN_WEAR_OPTIONS;
+    setWearPreference(nextOptions[0].value);
+  }
 
   return (
     <form
       className="quiz"
       onSubmit={(e) => {
         e.preventDefault();
-        onSubmit({ occasion, season, scentFamily, timeOfDay, bodyBuild });
+        onSubmit({ occasion, season, scentFamily, timeOfDay, bodyBuild, gender, ageGroup, wearPreference });
       }}
     >
       <span className="upload-mark">03</span>
       <h2 className="quiz-title">A few details</h2>
+
+      <div className="quiz-field">
+        <span>Gender</span>
+        <div className="accessory-picker">
+          {GENDERS.map((g) => (
+            <button
+              type="button"
+              key={g.value}
+              className={`chip ${gender === g.value ? "chip-active" : ""}`}
+              onClick={() => handleGenderChange(g.value)}
+            >
+              {g.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="quiz-field">
+        <span>
+          Age group{" "}
+          <span className="rec-confidence" style={{ display: "inline" }}>
+            (our guess from your photo — tap to correct it)
+          </span>
+        </span>
+        {isAgeLowConfidence && (
+          <p className="rec-sub" style={{ marginTop: "-0.25rem" }}>
+            We couldn&apos;t read your age range confidently from this photo — please confirm the right one below.
+          </p>
+        )}
+        <div className="accessory-picker">
+          {AGE_GROUPS.map((a) => (
+            <button
+              type="button"
+              key={a.value}
+              className={`chip ${ageGroup === a.value ? "chip-active" : ""}`}
+              onClick={() => setAgeGroup(a.value)}
+            >
+              {a.label}
+            </button>
+          ))}
+        </div>
+      </div>
 
       <div className="quiz-field">
         <span>
@@ -83,6 +158,22 @@ export default function OccasionQuiz({ detectedBodyBuild, detectedConfidence, on
           ))}
         </select>
       </label>
+
+      <div className="quiz-field">
+        <span>What would you like to wear?</span>
+        <div className="accessory-picker">
+          {wearOptions.map((w) => (
+            <button
+              type="button"
+              key={w.value}
+              className={`chip ${wearPreference === w.value ? "chip-active" : ""}`}
+              onClick={() => setWearPreference(w.value)}
+            >
+              {w.label}
+            </button>
+          ))}
+        </div>
+      </div>
 
       <label className="quiz-field">
         Season

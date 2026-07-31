@@ -3,7 +3,9 @@
 import { useState } from "react";
 import type { FaceAnalysisResult, QuizAnswers } from "@/lib/types";
 import { recommendDress } from "@/lib/rules/dressRules";
+import { recommendMenswear } from "@/lib/rules/menswearRules";
 import { recommendFragrance } from "@/lib/rules/fragranceRules";
+import { checkAppropriateness, wearLabel, type WearPreference } from "@/lib/rules/appropriatenessCheck";
 import AccessoryOverlay from "./AccessoryOverlay";
 import GeneratedLook from "./GeneratedLook";
 
@@ -24,9 +26,17 @@ const ACCESSORIES = [
 export default function RecommendationResults({ image, landmarks, faceResult, answers }: Props) {
   const [accessory, setAccessory] = useState<(typeof ACCESSORIES)[number]["value"]>("none");
 
-  const dress = recommendDress(faceResult.shape, answers.bodyBuild, answers.occasion);
+  const wearPreference = answers.wearPreference as WearPreference;
+  const appropriateness = checkAppropriateness(wearPreference, answers.occasion);
+  const categoryOverride = appropriateness.appropriate ? wearLabel(wearPreference) : undefined;
+
+  const outfit =
+    answers.gender === "male"
+      ? recommendMenswear(faceResult.shape, answers.bodyBuild, answers.occasion, answers.ageGroup, categoryOverride)
+      : recommendDress(faceResult.shape, answers.bodyBuild, answers.occasion, answers.ageGroup, categoryOverride);
+
   const fragrance = recommendFragrance(answers);
-  const dressPrompt = `${dress.silhouette}, with a ${dress.neckline}`;
+  const dressPrompt = `${outfit.silhouette}, with a ${outfit.neckline}`;
 
   return (
     <div className="results">
@@ -63,19 +73,30 @@ export default function RecommendationResults({ image, landmarks, faceResult, an
             </p>
           </section>
 
+          {!appropriateness.appropriate && (
+            <section className="rec-card">
+              <h3>About your preference</h3>
+              {appropriateness.reasoning.map((r, i) => (
+                <p key={i} className="rec-sub">
+                  {r}
+                </p>
+              ))}
+            </section>
+          )}
+
           <section className="rec-card">
             <h3>What to wear</h3>
-            <p className="rec-headline">{dress.silhouette}</p>
-            <p className="rec-sub">Neckline: {dress.neckline}</p>
-            <p className="rec-sub rec-avoid">Steer away from: {dress.avoid}</p>
+            <p className="rec-headline">{outfit.silhouette}</p>
+            <p className="rec-sub">Neckline: {outfit.neckline}</p>
+            <p className="rec-sub rec-avoid">Steer away from: {outfit.avoid}</p>
             <ul className="rec-reasoning">
-              {dress.reasoning.map((r, i) => (
+              {outfit.reasoning.map((r, i) => (
                 <li key={i}>{r}</li>
               ))}
             </ul>
           </section>
 
-          <GeneratedLook image={image} dressPrompt={dressPrompt} />
+          <GeneratedLook image={image} dressPrompt={dressPrompt} gender={answers.gender} />
 
           <section className="rec-card">
             <h3>What to wear (scent)</h3>
