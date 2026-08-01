@@ -13,7 +13,6 @@ import { checkAccessoryFit } from "@/lib/rules/accessoryRules";
 import AccessoryOverlay from "./AccessoryOverlay";
 import GeneratedLook from "./GeneratedLook";
 
-
 interface Props {
   image: HTMLImageElement;
   landmarks: { x: number; y: number }[];
@@ -32,7 +31,7 @@ export default function RecommendationResults({ image, landmarks, faceResult, an
   const [accessory, setAccessory] = useState<(typeof ACCESSORIES)[number]["value"]>("none");
 
   const wearPreference = answers.wearPreference as WearPreference;
-  const appropriateness = checkAppropriateness(wearPreference, answers.occasion);
+  const appropriateness = checkAppropriateness(wearPreference, answers.occasion, answers.gender);
   const categoryOverride = appropriateness.appropriate ? wearLabel(wearPreference) : undefined;
 
   const outfit =
@@ -43,16 +42,16 @@ export default function RecommendationResults({ image, landmarks, faceResult, an
   const fragrance = recommendFragrance(answers);
   const dressPrompt = `${outfit.silhouette}, with a ${outfit.neckline}`;
 
-const hairstyle =
+  const hairstyle =
     answers.gender === "male"
       ? buildMenHairstyleFromPreference(answers.hairPreference, answers.occasion)
-    : buildWomenHairstyleFromPreference(answers.hairPreference, answers.occasion);
+      : buildWomenHairstyleFromPreference(answers.hairPreference, answers.occasion);
 
   const hairstyleFit = checkHairstyleFit(answers.gender, faceResult.shape, answers.hairPreference);
   const hairPrompt = hairstyle.style;
 
-    const accessoryFit = checkAccessoryFit(answers.accessoryPreferences, answers.gender, answers.occasion);
-    const accessorySummary = accessoryFit.chosenLabel;
+  const accessoryFit = checkAccessoryFit(answers.accessoryPreferences, answers.gender, answers.occasion);
+  const accessorySummary = accessoryFit.chosenLabel;
 
   return (
     <div className="results">
@@ -115,17 +114,17 @@ const hairstyle =
           <section className="rec-card">
             <h3>Hairstyle</h3>
             <p className="rec-headline">{hairstyle.style}</p>
-            <p className="rec-sub rec-avoid">Steer away from: {hairstyle.avoid}</p>
             <ul className="rec-reasoning">
               {hairstyle.reasoning.map((r, i) => (
                 <li key={i}>{r}</li>
               ))}
             </ul>
-                       <p className={`rec-sub ${hairstyleFit.verdict === "caution" ? "rec-avoid" : ""}`} style={{ marginTop: "0.4rem" }}>
-+              {hairstyleFit.reasoning.join(" ")}
-+            </p>
+            <p className={`rec-sub ${hairstyleFit.verdict === "caution" ? "rec-avoid" : ""}`} style={{ marginTop: "0.4rem" }}>
+              {hairstyleFit.reasoning.join(" ")}
+            </p>
           </section>
-<section className="rec-card">
+
+          <section className="rec-card">
             <h3>Accessories</h3>
             <p className="rec-headline">{accessoryFit.chosenLabel}</p>
             <ul className="rec-reasoning">
@@ -134,7 +133,7 @@ const hairstyle =
               ))}
             </ul>
           </section>
-          
+
           <GeneratedLook
             image={image}
             dressPrompt={dressPrompt}
@@ -146,8 +145,6 @@ const hairstyle =
             fragranceSummary={`${fragrance.family} — ${fragrance.exampleNotes}`}
             accessorySummary={accessorySummary}
           />
-
-
 
           <section className="rec-card">
             <h3>What to wear (scent)</h3>

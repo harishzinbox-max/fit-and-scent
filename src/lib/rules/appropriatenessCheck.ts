@@ -1,4 +1,4 @@
-import type { Occasion } from "../types";
+import type { Occasion, Gender } from "../types";
 
 export type WomenswearPreference = "dress" | "saree" | "salwar-kameez" | "western-separates" | "gown";
 export type MenswearPreference = "shirt-trouser" | "kurta" | "suit" | "ethnic-set" | "casual-tee-jeans";
@@ -33,15 +33,24 @@ const WEAR_LABEL: Record<WearPreference, string> = {
   "casual-tee-jeans": "Casual wear",
 };
 
-// Which wear preferences read as a natural fit for each occasion.
-// Deliberately editable/explainable — not a hard rule, a starting guide.
-const OCCASION_COMPATIBLE_WEAR: Record<Occasion, WearPreference[]> = {
-  office: ["dress", "western-separates", "shirt-trouser", "salwar-kameez", "kurta"],
-  "wedding-guest": ["saree", "gown", "salwar-kameez", "kurta", "ethnic-set", "suit"],
-  "date-night": ["dress", "western-separates", "shirt-trouser", "suit"],
-  festival: ["saree", "salwar-kameez", "kurta", "ethnic-set", "dress"],
-  "casual-day": ["western-separates", "dress", "casual-tee-jeans", "kurta"],
-  "formal-evening": ["gown", "suit", "saree", "ethnic-set"],
+// Split by gender so a mismatch on one wardrobe never surfaces the other
+// wardrobe's items as the suggested alternative.
+const WOMEN_OCCASION_COMPATIBLE_WEAR: Record<Occasion, WomenswearPreference[]> = {
+  office: ["dress", "western-separates", "salwar-kameez"],
+  "wedding-guest": ["saree", "gown", "salwar-kameez"],
+  "date-night": ["dress", "western-separates"],
+  festival: ["saree", "salwar-kameez", "dress"],
+  "casual-day": ["western-separates", "dress"],
+  "formal-evening": ["gown", "saree"],
+};
+
+const MEN_OCCASION_COMPATIBLE_WEAR: Record<Occasion, MenswearPreference[]> = {
+  office: ["shirt-trouser", "kurta"],
+  "wedding-guest": ["kurta", "ethnic-set", "suit"],
+  "date-night": ["shirt-trouser", "suit"],
+  festival: ["kurta", "ethnic-set"],
+  "casual-day": ["casual-tee-jeans", "kurta"],
+  "formal-evening": ["suit", "ethnic-set"],
 };
 
 export interface AppropriatenessResult {
@@ -53,8 +62,13 @@ function occasionLabel(occasion: Occasion): string {
   return occasion.replace("-", " ");
 }
 
-export function checkAppropriateness(wearPreference: WearPreference, occasion: Occasion): AppropriatenessResult {
-  const compatible = OCCASION_COMPATIBLE_WEAR[occasion];
+export function checkAppropriateness(
+  wearPreference: WearPreference,
+  occasion: Occasion,
+  gender: Gender
+): AppropriatenessResult {
+  const compatible: WearPreference[] =
+    gender === "male" ? MEN_OCCASION_COMPATIBLE_WEAR[occasion] : WOMEN_OCCASION_COMPATIBLE_WEAR[occasion];
 
   if (compatible.includes(wearPreference)) {
     return {
