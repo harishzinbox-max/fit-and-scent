@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import type { FaceAnalysisResult, QuizAnswers } from "@/lib/types";
 import { recommendDress } from "@/lib/rules/dressRules";
 import { recommendMenswear } from "@/lib/rules/menswearRules";
@@ -10,7 +9,6 @@ import { checkHairstyleFit } from "@/lib/rules/hairstyleFit";
 import { recommendFragrance } from "@/lib/rules/fragranceRules";
 import { checkAppropriateness, wearLabel, type WearPreference } from "@/lib/rules/appropriatenessCheck";
 import { checkAccessoryFit } from "@/lib/rules/accessoryRules";
-import AccessoryOverlay from "./AccessoryOverlay";
 import GeneratedLook from "./GeneratedLook";
 
 interface Props {
@@ -20,16 +18,7 @@ interface Props {
   answers: QuizAnswers;
 }
 
-const ACCESSORIES = [
-  { value: "none", label: "No accessory" },
-  { value: "glasses-round", label: "Round glasses" },
-  { value: "glasses-square", label: "Square glasses" },
-  { value: "earrings", label: "Studs" },
-] as const;
-
-export default function RecommendationResults({ image, landmarks, faceResult, answers }: Props) {
-  const [accessory, setAccessory] = useState<(typeof ACCESSORIES)[number]["value"]>("none");
-
+export default function RecommendationResults({ image, faceResult, answers }: Props) {
   const wearPreference = answers.wearPreference as WearPreference;
   const appropriateness = checkAppropriateness(wearPreference, answers.occasion, answers.gender);
   const categoryOverride = appropriateness.appropriate ? wearLabel(wearPreference) : undefined;
@@ -60,19 +49,7 @@ export default function RecommendationResults({ image, landmarks, faceResult, an
 
       <div className="results-grid">
         <div className="results-photo-col">
-          <AccessoryOverlay image={image} landmarks={landmarks} accessory={accessory} />
-          <div className="accessory-picker">
-            {ACCESSORIES.map((a) => (
-              <button
-                key={a.value}
-                className={`chip ${accessory === a.value ? "chip-active" : ""}`}
-                onClick={() => setAccessory(a.value)}
-                type="button"
-              >
-                {a.label}
-              </button>
-            ))}
-          </div>
+          <img src={image.src} alt="Your uploaded photo" className="result-photo" />
         </div>
 
         <div className="results-cards">
