@@ -60,6 +60,7 @@ export interface QuizAnswers {
   ageGroup: AgeGroup;
   wearPreference: string;
   hairPreference: string;
+  accessoryPreferences: string[];
 }
 
 export interface DressRecommendation {
