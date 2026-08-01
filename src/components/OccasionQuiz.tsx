@@ -4,6 +4,8 @@ import { useState } from "react";
 import type { QuizAnswers, BodyBuild, Gender, AgeGroup } from "@/lib/types";
 import { WOMEN_WEAR_OPTIONS, MEN_WEAR_OPTIONS, type WearPreference } from "@/lib/rules/appropriatenessCheck";
 import { WOMEN_HAIRSTYLE_OPTIONS, MEN_HAIRSTYLE_OPTIONS } from "@/lib/rules/hairstyleOptions";
+import { WOMEN_ACCESSORY_OPTIONS, MEN_ACCESSORY_OPTIONS } from "@/lib/rules/accessoryRules";
+import HairstyleIcon from "./HairstyleIcon";
 
 interface Props {
   detectedBodyBuild: BodyBuild;
@@ -22,13 +24,13 @@ const OCCASIONS: { value: QuizAnswers["occasion"]; label: string }[] = [
   { value: "formal-evening", label: "Formal evening" },
 ];
 
-const BODY_BUILDS: { value: BodyBuild; label: string }[] = [
-  { value: "rectangle", label: "Rectangle" },
-  { value: "hourglass", label: "Hourglass" },
-  { value: "pear", label: "Pear" },
-  { value: "apple", label: "Apple" },
-  { value: "inverted-triangle", label: "Inverted triangle" },
-];
+const BODY_BUILD_LABEL: Record<BodyBuild, string> = {
+  rectangle: "Rectangle",
+  hourglass: "Hourglass",
+  pear: "Pear",
+  apple: "Apple",
+  "inverted-triangle": "Inverted triangle",
+};
 
 const GENDERS: { value: Gender; label: string }[] = [
   { value: "female", label: "Female" },
@@ -54,13 +56,22 @@ export default function OccasionQuiz({
   const [season, setSeason] = useState<QuizAnswers["season"]>("year-round");
   const [scentFamily, setScentFamily] = useState<QuizAnswers["scentFamily"]>("no-preference");
   const [timeOfDay, setTimeOfDay] = useState<QuizAnswers["timeOfDay"]>("day");
-  const [bodyBuild, setBodyBuild] = useState<BodyBuild>(detectedBodyBuild);
+  const bodyBuild = detectedBodyBuild; // auto-detected only, no manual override
   const [ageGroup, setAgeGroup] = useState<AgeGroup>(detectedAgeGroup);
 
   const wearOptions = gender === "male" ? MEN_WEAR_OPTIONS : WOMEN_WEAR_OPTIONS;
   const [wearPreference, setWearPreference] = useState<WearPreference>(wearOptions[0].value);
   const hairOptions = gender === "male" ? MEN_HAIRSTYLE_OPTIONS : WOMEN_HAIRSTYLE_OPTIONS;
   const [hairPreference, setHairPreference] = useState<string>(hairOptions[0].value);
+  const accessoryOptions = gender === "male" ? MEN_ACCESSORY_OPTIONS : WOMEN_ACCESSORY_OPTIONS;
+  const [accessoryPreferences, setAccessoryPreferences] = useState<string[]>([]);
+
+  function toggleAccessory(value: string) {
+    setAccessoryPreferences((prev) =>
+      prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value]
+    );
+  }
+
   const isLowConfidence = detectedConfidence < 0.45;
   const isAgeLowConfidence = detectedAgeConfidence < 0.4;
 
@@ -70,6 +81,7 @@ export default function OccasionQuiz({
     setWearPreference(nextOptions[0].value);
     const nextHairOptions = next === "male" ? MEN_HAIRSTYLE_OPTIONS : WOMEN_HAIRSTYLE_OPTIONS;
     setHairPreference(nextHairOptions[0].value);
+    setAccessoryPreferences([]);
   }
 
   return (
@@ -77,7 +89,7 @@ export default function OccasionQuiz({
       className="quiz"
       onSubmit={(e) => {
         e.preventDefault();
-        onSubmit({ occasion, season, scentFamily, timeOfDay, bodyBuild, gender, ageGroup, wearPreference, hairPreference });
+        onSubmit({ occasion, season, scentFamily, timeOfDay, bodyBuild, gender, ageGroup, wearPreference, hairPreference, accessoryPreferences });
       }}
     >
       <span className="upload-mark">03</span>
@@ -85,7 +97,7 @@ export default function OccasionQuiz({
 
       <div className="quiz-field">
         <span>Gender</span>
-        <div className="accessory-picker">
+        <div className="accessory-picker" style={{ flexWrap: "wrap", gap: "0.6rem" }}>
           {GENDERS.map((g) => (
             <button
               type="button"
@@ -132,24 +144,13 @@ export default function OccasionQuiz({
             (auto-detected, {(detectedConfidence * 100).toFixed(0)}% confidence)
           </span>
         </span>
+        <p className="rec-headline" style={{ marginTop: "0.25rem" }}>{BODY_BUILD_LABEL[bodyBuild]}</p>
         {isLowConfidence && (
           <p className="rec-sub" style={{ marginTop: "-0.25rem" }}>
             Your shoulders and hips look proportionate, so we couldn&apos;t tell if you have a defined waist from
-            this photo. We defaulted to Rectangle — tap another option below if that&apos;s not right.
+            this photo — we&apos;ve used Rectangle as the closest general fit.
           </p>
         )}
-        <div className="accessory-picker">
-          {BODY_BUILDS.map((b) => (
-            <button
-              type="button"
-              key={b.value}
-              className={`chip ${bodyBuild === b.value ? "chip-active" : ""}`}
-              onClick={() => setBodyBuild(b.value)}
-            >
-              {b.label}
-            </button>
-          ))}
-        </div>
       </div>
 
       <label className="quiz-field">
@@ -177,21 +178,40 @@ export default function OccasionQuiz({
             </button>
           ))}
         </div>
-        <div className="quiz-field">
-        <span>How would you like your hair?</span>
+      </div>
+
+      <div className="quiz-field">
+        <span>Which accessories would you like?</span>
         <div className="accessory-picker">
+          {accessoryOptions.map((a) => (
+            <button
+              type="button"
+              key={a.value}
+              className={`chip ${accessoryPreferences.includes(a.value) ? "chip-active" : ""}`}
+              onClick={() => toggleAccessory(a.value)}
+            >
+              {a.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="quiz-field">
+        <span>How would you like your hair?</span>
+        <div className="accessory-picker" style={{ flexWrap: "wrap", gap: "0.6rem" }}>
           {hairOptions.map((h) => (
             <button
               type="button"
               key={h.value}
               className={`chip ${hairPreference === h.value ? "chip-active" : ""}`}
               onClick={() => setHairPreference(h.value)}
+              style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.3rem", padding: "0.6rem" }}
             >
+              <HairstyleIcon styleKey={h.icon} size={40} />
               {h.label}
             </button>
           ))}
         </div>
-      </div>
       </div>
 
       <label className="quiz-field">

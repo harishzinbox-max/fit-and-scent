@@ -4,13 +4,12 @@ import { useState } from "react";
 import type { FaceAnalysisResult, QuizAnswers } from "@/lib/types";
 import { recommendDress } from "@/lib/rules/dressRules";
 import { recommendMenswear } from "@/lib/rules/menswearRules";
-import { recommendWomenHairstyle } from "@/lib/rules/womenHairstyleRules";
-import { recommendMenHairstyle } from "@/lib/rules/menHairstyleRules";
 import { buildWomenHairstyleFromPreference } from "@/lib/rules/womenHairstyleRules";
 import { buildMenHairstyleFromPreference } from "@/lib/rules/menHairstyleRules";
+import { checkHairstyleFit } from "@/lib/rules/hairstyleFit";
 import { recommendFragrance } from "@/lib/rules/fragranceRules";
 import { checkAppropriateness, wearLabel, type WearPreference } from "@/lib/rules/appropriatenessCheck";
-import { recommendAccessories } from "@/lib/rules/accessoryRules";
+import { checkAccessoryFit } from "@/lib/rules/accessoryRules";
 import AccessoryOverlay from "./AccessoryOverlay";
 import GeneratedLook from "./GeneratedLook";
 
@@ -49,17 +48,11 @@ const hairstyle =
       ? buildMenHairstyleFromPreference(answers.hairPreference, answers.occasion)
     : buildWomenHairstyleFromPreference(answers.hairPreference, answers.occasion);
 
-  // Face-shape-optimized alternative, shown only as an informational note —
-  // the user's own pick above is always what gets applied.
-  const faceShapeSuggestion =
-    answers.gender === "male"
-      ? recommendMenHairstyle(faceResult.shape, answers.occasion)
-      : recommendWomenHairstyle(faceResult.shape, answers.occasion);
-  const suggestionDiffers = faceShapeSuggestion.style !== hairstyle.style;
+  const hairstyleFit = checkHairstyleFit(answers.gender, faceResult.shape, answers.hairPreference);
   const hairPrompt = hairstyle.style;
 
-  const accessories = recommendAccessories(answers.gender, answers.occasion);
-  const accessorySummary = accessories.items.join(", ");
+    const accessoryFit = checkAccessoryFit(answers.accessoryPreferences, answers.gender, answers.occasion);
+    const accessorySummary = accessoryFit.chosenLabel;
 
   return (
     <div className="results">
@@ -128,21 +121,18 @@ const hairstyle =
                 <li key={i}>{r}</li>
               ))}
             </ul>
-            {suggestionDiffers && (
-              <p className="rec-sub" style={{ marginTop: "0.4rem" }}>
-                Based on your face shape, we&apos;d also suggest: {faceShapeSuggestion.style} —{" "}
-                {faceShapeSuggestion.reasoning[0]}
-              </p>
-            )}
+                       <p className={`rec-sub ${hairstyleFit.verdict === "caution" ? "rec-avoid" : ""}`} style={{ marginTop: "0.4rem" }}>
++              {hairstyleFit.reasoning.join(" ")}
++            </p>
           </section>
 <section className="rec-card">
             <h3>Accessories</h3>
+            <p className="rec-headline">{accessoryFit.chosenLabel}</p>
             <ul className="rec-reasoning">
-              {accessories.items.map((item, i) => (
-                <li key={i}>{item}</li>
-             ))}
+              {accessoryFit.reasoning.map((r, i) => (
+                <li key={i}>{r}</li>
+              ))}
             </ul>
-            <p className="rec-sub">{accessories.reasoning[0]}</p>
           </section>
           
           <GeneratedLook

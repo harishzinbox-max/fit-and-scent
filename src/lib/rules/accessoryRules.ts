@@ -4,7 +4,29 @@ export interface AccessoryRecommendation {
   items: string[];
   reasoning: string[];
 }
+export interface AccessoryOption {
+  value: string;
+  label: string;
+}
 
+export const WOMEN_ACCESSORY_OPTIONS: AccessoryOption[] = [
+  { value: "necklace", label: "Necklace" },
+  { value: "earrings", label: "Earrings/studs" },
+  { value: "bangles", label: "Bangles" },
+  { value: "clutch", label: "Clutch/handbag" },
+  { value: "sunglasses", label: "Sunglasses" },
+  { value: "watch", label: "Watch" },
+  { value: "none", label: "No accessories" },
+];
+
+export const MEN_ACCESSORY_OPTIONS: AccessoryOption[] = [
+  { value: "cap", label: "Cap/hat" },
+  { value: "sunglasses", label: "Sunglasses" },
+  { value: "watch", label: "Watch" },
+  { value: "bracelet", label: "Bracelet" },
+  { value: "studs", label: "Studs/earring" },
+  { value: "none", label: "No accessories" },
+];
 const WOMEN_ACCESSORIES: Record<Occasion, { items: string[]; why: string }> = {
   office: { items: ["structured watch", "small stud earrings", "leather tote"], why: "minimal, functional pieces keep a professional read" },
   "wedding-guest": { items: ["statement earrings", "embellished clutch", "bangles"], why: "festive settings support more ornate accessories" },
@@ -30,4 +52,39 @@ export function recommendAccessories(gender: Gender, occasion: Occasion): Access
     items,
     reasoning: [`${items.join(", ")} — ${why}.`],
   };
+}
+export interface AccessoryFitResult {
+  chosenLabel: string;
+  reasoning: string[];
+}
+
+// Compares the user's picks against the occasion-appropriate list already
+// defined above, and explains the fit rather than overriding their choice.
+export function checkAccessoryFit(
+  selected: string[],
+  gender: Gender,
+  occasion: Occasion
+): AccessoryFitResult {
+  const table = gender === "male" ? MEN_ACCESSORIES : WOMEN_ACCESSORIES;
+  const recommended = table[occasion].items;
+  const chosen = selected.filter((s) => s !== "none");
+
+  if (chosen.length === 0) {
+    return { chosenLabel: "No accessories", reasoning: ["Going without accessories keeps the look clean and simple."] };
+ }
+
+  const matches = chosen.filter((c) => recommended.some((r) => r.toLowerCase().includes(c.toLowerCase())));
+  const nonMatches = chosen.filter((c) => !matches.includes(c));
+
+  const reasoning: string[] = [];
+  if (matches.length > 0) {
+    reasoning.push(`${matches.join(", ")} fit well with a ${occasion.replace("-", " ")} setting.`);
+  }
+  if (nonMatches.length > 0) {
+    reasoning.push(
+      `${nonMatches.join(", ")} isn't the most typical pairing for ${occasion.replace("-", " ")}, but it's a personal styling choice — for reference, ${recommended.slice(0, 2).join(" or ")} tend to be the safer fit here.`
+    );
+  }
+
+  return { chosenLabel: chosen.join(", "), reasoning };
 }

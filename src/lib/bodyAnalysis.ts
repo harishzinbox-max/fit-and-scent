@@ -43,19 +43,26 @@ export function computeBodyRatios(landmarks: Point[]): BodyRatios {
 export function classifyBodyBuild(ratios: BodyRatios): { build: BodyBuild; confidence: number } {
   const { shoulderToHip } = ratios;
 
-  if (shoulderToHip > 1.12) {
-    const confidence = Math.min(0.9, 0.5 + (shoulderToHip - 1.12) * 2);
+  // Recalibrated: MediaPipe's hip landmarks (23, 24) sit at the hip JOINTS,
+  // not the visible width of the hips — so joint-to-joint shoulder:hip
+  // ratios run much higher than a tape-measure ratio would (commonly
+  // 1.15–1.6+ even for average builds). Thresholds below are set against
+  // that reality, not against garment-fit shoulder:hip ratios.
+  if (shoulderToHip > 1.55) {
+    const confidence = Math.min(0.9, 0.5 + (shoulderToHip - 1.55) * 2);
     return { build: "inverted-triangle", confidence };
   }
 
-  if (shoulderToHip < 0.9) {
-    const confidence = Math.min(0.9, 0.5 + (0.9 - shoulderToHip) * 2);
+  if (shoulderToHip < 1.15) {
+    const confidence = Math.min(0.9, 0.5 + (1.15 - shoulderToHip) * 2);
     return { build: "pear", confidence };
   }
 
-  // Ambiguous middle zone — shoulders and hips are proportionate.
+   // Ambiguous middle zone (roughly 1.15–1.55) — this is where most people's
+   // joint-based ratio actually falls. We still can't see waist definition
+   // here, so we can't distinguish rectangle vs. hourglass vs. apple.
   // Confidence is deliberately low here since we can't see waist definition.
-  const distanceFromBalanced = Math.abs(1.0 - shoulderToHip);
+    const distanceFromBalanced = Math.abs(1.35 - shoulderToHip);
   const confidence = Math.max(0.2, 0.4 - distanceFromBalanced);
   return { build: "rectangle", confidence };
 }
