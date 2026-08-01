@@ -13,8 +13,8 @@ interface Props {
   hairPrompt: string;
   gender: Gender;
   occasion: Occasion;
-   outfitSummary: string;
- hairstyleSummary: string;
+  outfitSummary: string;
+  hairstyleSummary: string;
   fragranceSummary: string;
   accessorySummary: string;
 }
@@ -22,7 +22,7 @@ interface Props {
 type Status = "idle" | "generating" | "done" | "error";
 
 export default function GeneratedLook({
-image,
+  image,
   dressPrompt,
   hairPrompt,
   gender,
@@ -35,8 +35,9 @@ image,
   const [status, setStatus] = useState<Status>("idle");
   const [resultUrl, setResultUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
- const [resultData, setResultData] = useState<{ imageBase64: string; mimeType: string } | null>(null);
+  const [resultData, setResultData] = useState<{ imageBase64: string; mimeType: string } | null>(null);
   const [saved, setSaved] = useState(false);
+
   async function handleGenerate() {
     setStatus("generating");
     setError(null);
@@ -69,7 +70,8 @@ image,
       setStatus("error");
     }
   }
- function handleSaveToWardrobe() {
+
+  function handleSaveToWardrobe() {
     if (!resultData) return;
     saveLook({
       imageBase64: resultData.imageBase64,
@@ -83,6 +85,7 @@ image,
     });
     setSaved(true);
   }
+
   return (
     <section className="rec-card">
       <h3>See it on you</h3>
@@ -129,47 +132,11 @@ image,
               searchTerms={[
                 { label: "Outfit", term: `${gender === "male" ? "men's" : "women's"} ${outfitSummary.split(",")[0]}` },
                 { label: "Hairstyle products", term: hairstyleSummary.split(",")[0] },
-                { label: "Accessories", term: fragranceSummary },
-              ]}
-            />
-          </div>
-          {status === "done" && resultUrl && (
-        <div style={{ marginTop: "0.75rem" }}>
-          <img src={resultUrl} alt="Generated look" className="result-photo" />
-          <button
-            type="button"
-            className="quiz-submit"
-            style={{ marginTop: "0.6rem" }}
-            onClick={handleSaveToWardrobe}
-            disabled={saved}
-          >
-            {saved ? "Saved to your wardrobe ✓" : "Save to my wardrobe"}
-          </button>
-          <button
-            type="button"
-            className="chip"
-            style={{ marginTop: "0.6rem" }}
-            onClick={() => {
-              setStatus("idle");
-              setResultUrl(null);
-              setResultData(null);
-              setSaved(false);
-            }}
-          >
-            Try again
-          </button>
-          <div style={{ marginTop: "1rem" }}>
-            <ShopThisLook
-              searchTerms={[
-                { label: "Outfit", term: `${gender === "male" ? "men's" : "women's"} ${outfitSummary.split(",")[0]}` },
-                { label: "Hairstyle products", term: hairstyleSummary.split(",")[0] },
                 { label: "Accessories", term: accessorySummary },
                 { label: "Fragrance", term: `${fragranceSummary.split("—")[0].trim()} perfume` },
               ]}
             />
           </div>
-        </div>
-      )}
         </div>
       )}
     </section>
