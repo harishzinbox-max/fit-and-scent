@@ -108,9 +108,8 @@ export default function GeneratedLook({
            <ClickableLookImage
             imageUrl={resultUrl}
             hotspots={[
-              { id: "hair", label: "Hairstyle", searchTerm: hairstyleSummary, top: "0%", left: "25%", width: "50%", height: "18%" },
-              { id: "outfit", label: "Outfit", searchTerm: outfitSummary, top: "20%", left: "10%", width: "80%", height: "60%" },
-              { id: "accessories", label: "Accessories", searchTerm: accessorySummary, top: "60%", left: "55%", width: "30%", height: "25%" },
+              { id: "hair", label: "Hairstyle", searchTerm: `${gender === "male" ? "men's" : "women's"} ${hairstyleSummary}`, top: "0%", left: "20%", width: "60%", height: "16%" },
+              { id: "outfit", label: "Outfit", searchTerm: `${gender === "male" ? "men's" : "women's"} ${outfitSummary}`, top: "18%", left: "5%", width: "90%", height: "70%" },
             ]}
           />
           <p className="rec-sub" style={{ marginTop: "0.4rem" }}>
@@ -138,6 +137,21 @@ export default function GeneratedLook({
           >
             Try again
           </button>
+            <div style={{ marginTop: "1rem" }}>
+            <p className="rec-sub" style={{ marginBottom: "0.3rem", fontWeight: 600 }}>
+              Accessories
+            </p>
+            <div className="accessory-picker">
+              {buildShoppingLinks(`${gender === "male" ? "men's" : "women's"} ${accessorySummary}`).map((link) => (
+                <a key={link.source} href={link.url} target="_blank" rel="noopener noreferrer sponsored" className="chip">
+                  {link.label}
+                </a>
+              ))}
+              <a href={buildMyntraLink(`${gender === "male" ? "men's" : "women's"} ${accessorySummary}`).url} target="_blank" rel="noopener noreferrer sponsored" className="chip">
+                Shop on Myntra
+              </a>
+            </div>
+          </div>
           <div style={{ marginTop: "1rem" }}>
             <p className="rec-sub" style={{ marginBottom: "0.3rem", fontWeight: 600 }}>
               Fragrance

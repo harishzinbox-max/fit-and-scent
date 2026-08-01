@@ -68,32 +68,52 @@ export default function RecommendationResults({ image, faceResult, answers }: Pr
             </p>
           </section>
 
-          {!appropriateness.appropriate && (
-            <section className="rec-card">
-              <h3>About your preference</h3>
-              {appropriateness.reasoning.map((r, i) => (
-                <p key={i} className="rec-sub">
-                  {r}
-                </p>
-              ))}
-              <div className="accessory-picker" style={{ marginTop: "0.6rem" }}>
-                <button
-                  type="button"
-                  className={`chip ${!keepOriginalChoice ? "chip-active" : ""}`}
-                  onClick={() => setKeepOriginalChoice(false)}
-                >
-                  Use the suggested outfit
-                </button>
-                <button
-                  type="button"
-                  className={`chip ${keepOriginalChoice ? "chip-active" : ""}`}
-                  onClick={() => setKeepOriginalChoice(true)}
-                >
-                  Keep my original pick
-                </button>
-              </div>
-            </section>
-          )}
+                    <section className="rec-card">
+            <h3>About your preference</h3>
+            {appropriateness.appropriate ? (
+              <p className="rec-sub">
+                {wearLabel(wearPreference)} is a good fit for a {answers.occasion.replace("-", " ")} setting — no
+                changes needed.
+              </p>
+            ) : (
+             <>
+                {appropriateness.reasoning.map((r, i) => (
+                  <p key={i} className="rec-sub">
+                    {r}
+                  </p>
+                ))}
+                <div className="accessory-picker" style={{ marginTop: "0.6rem" }}>
+                  <button
+                    type="button"
+                    className={`chip ${!keepOriginalChoice ? "chip-active" : ""}`}
+                   onClick={() => setKeepOriginalChoice(false)}
+                  >
+                    Use the suggested outfit
+                  </button>
+                  <button
+                    type="button"
+                    className={`chip ${keepOriginalChoice ? "chip-active" : ""}`}
+                    onClick={() => setKeepOriginalChoice(true)}
+                  >
+                    Keep my original pick
+                  </button>
+                </div>
+              </>
+            )}
+          </section>
+Now the "About your preference" card always shows, whether or not there's a conflict — when your pick is already appropriate, it confirms that plainly; when it isn't, it shows the reasoning and the two-button choice, exactly as before.
+
+Apply both files' changes, save, check Problems panel, then:
+
+bash
+git add -A
+git commit -m "fix: non-overlapping hotspots, gender-prefixed search terms, always-visible outfit choice card"
+git push
+Test: pick a mismatched combo deliberately (e.g. male + office + ethnic-set) to confirm the toggle buttons now clearly appear; generate a look and tap the outfit region vs. hair region on the photo to confirm they no longer cross-trigger; check that Amazon/Flipkart links now include "men's"/"women's" in the URL.
+
+
+
+You’ve used 90% of yo
 
           <section className="rec-card">
             <h3>What to wear</h3>
