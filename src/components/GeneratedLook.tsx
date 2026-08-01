@@ -5,7 +5,8 @@ import type { Gender } from "@/lib/types";
 import { imageToBase64 } from "@/lib/imageToBase64";
 import { saveLook } from "@/lib/wardrobeStorage";
 import type { Occasion } from "@/lib/types";
-import ShopThisLook from "./ShopThisLook";
+import ClickableLookImage from "./ClickableLookImage";
+import { buildShoppingLinks, buildMyntraLink } from "@/lib/affiliateLinks";
 
 interface Props {
   image: HTMLImageElement;
@@ -104,7 +105,17 @@ export default function GeneratedLook({
 
       {status === "done" && resultUrl && (
         <div style={{ marginTop: "0.75rem" }}>
-          <img src={resultUrl} alt="Generated look" className="result-photo" />
+           <ClickableLookImage
+            imageUrl={resultUrl}
+            hotspots={[
+              { id: "hair", label: "Hairstyle", searchTerm: hairstyleSummary, top: "0%", left: "25%", width: "50%", height: "18%" },
+              { id: "outfit", label: "Outfit", searchTerm: outfitSummary, top: "20%", left: "10%", width: "80%", height: "60%" },
+              { id: "accessories", label: "Accessories", searchTerm: accessorySummary, top: "60%", left: "55%", width: "30%", height: "25%" },
+            ]}
+          />
+          <p className="rec-sub" style={{ marginTop: "0.4rem" }}>
+            Tap a highlighted area on the photo to shop that item.
+          </p>
           <button
             type="button"
             className="quiz-submit"
@@ -128,14 +139,19 @@ export default function GeneratedLook({
             Try again
           </button>
           <div style={{ marginTop: "1rem" }}>
-            <ShopThisLook
-              searchTerms={[
-                { label: "Outfit", term: `${gender === "male" ? "men's" : "women's"} ${outfitSummary.split(",")[0]}` },
-                { label: "Hairstyle products", term: hairstyleSummary.split(",")[0] },
-                { label: "Accessories", term: accessorySummary },
-                { label: "Fragrance", term: `${fragranceSummary.split("—")[0].trim()} perfume` },
-              ]}
-            />
+            <p className="rec-sub" style={{ marginBottom: "0.3rem", fontWeight: 600 }}>
+              Fragrance
+            </p>
+            <div className="accessory-picker">
+              {buildShoppingLinks(`${fragranceSummary.split("—")[0].trim()} perfume`).map((link) => (
+                <a key={link.source} href={link.url} target="_blank" rel="noopener noreferrer sponsored" className="chip">
+                  {link.label}
+                </a>
+              ))}
+              <a href={buildMyntraLink(`${fragranceSummary.split("—")[0].trim()} perfume`).url} target="_blank" rel="noopener noreferrer sponsored" className="chip">
+                Shop on Myntra
+              </a>
+            </div>
           </div>
         </div>
       )}
