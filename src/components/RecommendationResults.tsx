@@ -1,4 +1,5 @@
 "use client";
+
 import { useState } from "react";
 import type { FaceAnalysisResult, QuizAnswers } from "@/lib/types";
 import { recommendDress } from "@/lib/rules/dressRules";
@@ -21,9 +22,9 @@ interface Props {
 export default function RecommendationResults({ image, faceResult, answers }: Props) {
   const wearPreference = answers.wearPreference as WearPreference;
   const appropriateness = checkAppropriateness(wearPreference, answers.occasion, answers.gender);
-   const [keepOriginalChoice, setKeepOriginalChoice] = useState(false);
+  const [keepOriginalChoice, setKeepOriginalChoice] = useState(false);
   const categoryOverride =
-    appropriateness.appropriate || keepOriginalChoice ? wearLabel(wearPreference) : undefined;onst categoryOverride = appropriateness.appropriate ? wearLabel(wearPreference) : undefined;
+    appropriateness.appropriate || keepOriginalChoice ? wearLabel(wearPreference) : undefined;
 
   const outfit =
     answers.gender === "male"
@@ -75,7 +76,7 @@ export default function RecommendationResults({ image, faceResult, answers }: Pr
                   {r}
                 </p>
               ))}
-               <div className="accessory-picker" style={{ marginTop: "0.6rem" }}>
+              <div className="accessory-picker" style={{ marginTop: "0.6rem" }}>
                 <button
                   type="button"
                   className={`chip ${!keepOriginalChoice ? "chip-active" : ""}`}
