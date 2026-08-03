@@ -4,8 +4,6 @@
 
 const AMAZON_TAG = "YOUR-AMAZON-TAG-21"; // e.g. "fitandscent-21"
 const FLIPKART_AFFILIATE_ID = "YOUR-FLIPKART-AFFID";
-const MYNTRA_AGGREGATOR_BASE = "https://ekaro.in/enkr2/"; // via EarnKaro or similar
-
 import type { ShoppingLink } from "./types";
 
 function amazonSearchUrl(query: string): string {
@@ -25,9 +23,11 @@ export function buildShoppingLinks(searchTerm: string): ShoppingLink[] {
   ];
 }
 
-// Myntra links typically route through an aggregator that requires a
-// destination URL to be wrapped, since Myntra doesn't run a direct program.
+// Myntra doesn't run a direct affiliate program — it requires signing up
+// with an aggregator (e.g. EarnKaro) and using YOUR real tracking link
+// format once approved. Until then, this points to a plain (non-affiliate)
+// Myntra search so the link at least works correctly for the user.
 export function buildMyntraLink(searchTerm: string): ShoppingLink {
-  const destination = encodeURIComponent(`https://www.myntra.com/${encodeURIComponent(searchTerm)}`);
-  return { label: "Shop on Myntra", url: `${MYNTRA_AGGREGATOR_BASE}${destination}`, source: "Myntra" };
+  const q = encodeURIComponent(searchTerm);
+  return { label: "Shop on Myntra", url: `https://www.myntra.com/${q}`, source: "Myntra" };
 }
