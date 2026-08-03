@@ -86,7 +86,8 @@ export default function FaceScanner({ image, onResult }: Props) {
         const textureVariance =
           luminances.reduce((sum, v) => sum + (v - meanLum) ** 2, 0) / luminances.length;
 
-        const analysis = analyzeFace(landmarks, rgbSamples, textureVariance);
+        console.log("DEBUG textureVariance:", textureVariance);
+          const analysis = analyzeFace(landmarks, rgbSamples, textureVariance);
         if (cancelled) return;
         setStatus("done");
         onResult(analysis, landmarks);
