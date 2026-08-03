@@ -88,3 +88,27 @@ export function checkAccessoryFit(
 
   return { chosenLabel: chosen.join(", "), reasoning };
 }
+// Tool-recommended accessory picks per occasion, using the same option
+// values shown in the picker (WOMEN_ACCESSORY_OPTIONS / MEN_ACCESSORY_OPTIONS)
+// so the result can be applied directly to accessoryPreferences.
+const WOMEN_ACCESSORY_RECOMMEND: Record<Occasion, string[]> = {
+  office: ["watch", "earrings"],
+  "wedding-guest": ["earrings", "bangles", "clutch"],
+  "date-night": ["necklace", "earrings"],
+  festival: ["bangles", "earrings"],
+  "casual-day": ["sunglasses", "watch"],
+  "formal-evening": ["necklace", "clutch"],
+};
+
+const MEN_ACCESSORY_RECOMMEND: Record<Occasion, string[]> = {
+  office: ["watch"],
+  "wedding-guest": ["watch", "studs"],
+  "date-night": ["watch", "bracelet"],
+  festival: ["sunglasses", "watch"],
+  "casual-day": ["cap", "sunglasses"],
+  "formal-evening": ["watch"],
+};
+
+export function recommendAccessoryValues(gender: Gender, occasion: Occasion): string[] {
+  return gender === "male" ? MEN_ACCESSORY_RECOMMEND[occasion] : WOMEN_ACCESSORY_RECOMMEND[occasion];
+}

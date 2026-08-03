@@ -90,3 +90,26 @@ export function checkAppropriateness(
 export function wearLabel(pref: WearPreference): string {
   return WEAR_LABEL[pref];
 }
+// Heuristic tool-recommendation: picks the best-fit item from the
+// occasion-compatible list, leaning toward the simpler/lighter end for
+// day settings and the more elevated end for evening settings. Season is
+// accepted for future refinement but currently only nudges casual-day.
+export function recommendWearPreference(
+  gender: Gender,
+  occasion: Occasion,
+  timeOfDay: "day" | "evening",
+  season: "spring-summer" | "autumn-winter" | "year-round"
+): WearPreference {
+  const compatible: WearPreference[] =
+    gender === "male" ? MEN_OCCASION_COMPATIBLE_WEAR[occasion] : WOMEN_OCCASION_COMPATIBLE_WEAR[occasion];
+
+  if (occasion === "casual-day" && season === "autumn-winter" && compatible.length > 1) {
+    return compatible[1];
+  }
+
+  if (timeOfDay === "evening" && compatible.length > 1) {
+    return compatible[compatible.length - 1];
+  }
+
+  return compatible[0];
+}

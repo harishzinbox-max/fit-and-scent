@@ -1,13 +1,20 @@
 "use client";
 
 import { useState } from "react";
-import type { QuizAnswers, BodyBuild, Gender, AgeGroup } from "@/lib/types";
-import { WOMEN_WEAR_OPTIONS, MEN_WEAR_OPTIONS, type WearPreference } from "@/lib/rules/appropriatenessCheck";
+import type { QuizAnswers, BodyBuild, Gender, AgeGroup, FaceShape } from "@/lib/types";
+import {
+  WOMEN_WEAR_OPTIONS,
+  MEN_WEAR_OPTIONS,
+  recommendWearPreference,
+  type WearPreference,
+} from "@/lib/rules/appropriatenessCheck";
 import { WOMEN_HAIRSTYLE_OPTIONS, MEN_HAIRSTYLE_OPTIONS } from "@/lib/rules/hairstyleOptions";
-import { WOMEN_ACCESSORY_OPTIONS, MEN_ACCESSORY_OPTIONS } from "@/lib/rules/accessoryRules";
+import { recommendHairstyleValue } from "@/lib/rules/hairstyleFit";
+import { WOMEN_ACCESSORY_OPTIONS, MEN_ACCESSORY_OPTIONS, recommendAccessoryValues } from "@/lib/rules/accessoryRules";
 import HairstyleIcon from "./HairstyleIcon";
 
 interface Props {
+  faceShape: FaceShape;
   detectedBodyBuild: BodyBuild;
   detectedConfidence: number;
   detectedAgeGroup: AgeGroup;
@@ -45,6 +52,7 @@ const AGE_GROUPS: { value: AgeGroup; label: string }[] = [
 ];
 
 export default function OccasionQuiz({
+  faceShape,
   detectedBodyBuild,
   detectedConfidence,
   detectedAgeGroup,
@@ -82,6 +90,18 @@ export default function OccasionQuiz({
     const nextHairOptions = next === "male" ? MEN_HAIRSTYLE_OPTIONS : WOMEN_HAIRSTYLE_OPTIONS;
     setHairPreference(nextHairOptions[0].value);
     setAccessoryPreferences([]);
+  }
+
+  function handleToolRecommendWear() {
+    setWearPreference(recommendWearPreference(gender, occasion, timeOfDay, season));
+  }
+
+  function handleToolRecommendHair() {
+    setHairPreference(recommendHairstyleValue(gender, faceShape));
+  }
+
+  function handleToolRecommendAccessories() {
+    setAccessoryPreferences(recommendAccessoryValues(gender, occasion));
   }
 
   return (
@@ -177,6 +197,9 @@ export default function OccasionQuiz({
               {w.label}
             </button>
           ))}
+          <button type="button" className="chip" onClick={handleToolRecommendWear}>
+            ✨ Tool Recommendation
+          </button>
         </div>
       </div>
 
@@ -194,6 +217,9 @@ export default function OccasionQuiz({
             </button>
           ))}
         </div>
+        <button type="button" className="chip" style={{ marginTop: "0.5rem" }} onClick={handleToolRecommendAccessories}>
+          ✨ Tool Recommendation
+        </button>
       </div>
 
       <div className="quiz-field">
@@ -212,6 +238,9 @@ export default function OccasionQuiz({
             </button>
           ))}
         </div>
+        <button type="button" className="chip" style={{ marginTop: "0.5rem" }} onClick={handleToolRecommendHair}>
+          ✨ Tool Recommendation
+        </button>
       </div>
 
       <label className="quiz-field">

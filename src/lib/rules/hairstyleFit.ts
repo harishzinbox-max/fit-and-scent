@@ -3,7 +3,7 @@ import type { FaceShape, Gender } from "../types";
 // Maps which hairstyle option *values* (from hairstyleOptions.ts) are a
 // strong fit vs. a caution for each face shape. Kept separate from the
 // occasion-styling logic so this only judges shape/style compatibility.
-const WOMEN_FIT: Record<FaceShape, { good: string[]; caution: string[]; why: string; whyCaution: string }> = {
+export const WOMEN_FIT: Record<FaceShape, { good: string[]; caution: string[]; why: string; whyCaution: string }> = {
   round: {
     good: ["long layers with movement", "an updo or bun"],
     caution: ["a sleek, straight finish"],
@@ -42,7 +42,7 @@ const WOMEN_FIT: Record<FaceShape, { good: string[]; caution: string[]; why: str
   },
 };
 
-const MEN_FIT: Record<FaceShape, { good: string[]; caution: string[]; why: string; whyCaution: string }> = {
+export const MEN_FIT: Record<FaceShape, { good: string[]; caution: string[]; why: string; whyCaution: string }> = {
   round: {
     good: ["a textured crop", "a fade with length on top"],
     caution: ["a close buzz cut"],
@@ -103,4 +103,10 @@ export function checkHairstyleFit(gender: Gender, faceShape: FaceShape, chosenVa
     };
   }
   return { verdict: "neutral", reasoning: ["This is a solid, versatile choice for your face shape."] };
+}
+// Tool-recommended hairstyle value: the first face-shape-optimal option,
+// matching the `value` strings used in hairstyleOptions.ts pickers.
+export function recommendHairstyleValue(gender: Gender, faceShape: FaceShape): string {
+  const table = gender === "male" ? MEN_FIT : WOMEN_FIT;
+  return table[faceShape].good[0] ?? "natural texture, unstyled";
 }

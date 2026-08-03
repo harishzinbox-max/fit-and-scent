@@ -80,6 +80,7 @@ export default function Home() {
 
         {stage === "quiz" && bodyResult && (
           <OccasionQuiz
+            faceShape={faceResult?.shape ?? "oval"}
             detectedBodyBuild={bodyResult.build}
             detectedConfidence={bodyResult.confidence}
             detectedAgeGroup={faceResult?.estimatedAgeGroup ?? "26-40"}
