@@ -159,12 +159,10 @@ export function classifySkinTone(rgbSamples: [number, number, number][]): SkinTo
 
 export function analyzeFace(
   landmarks: Point[],
-  rgbSamples: [number, number, number][],
-  textureVariance: number
+  rgbSamples: [number, number, number][]
 ): FaceAnalysisResult {
   const ratios = computeFaceRatios(landmarks);
   const { shape, confidence } = classifyFaceShape(ratios);
   const skinTone = classifySkinTone(rgbSamples);
-  const { ageGroup, confidence: ageConfidence } = classifyAgeGroup(textureVariance);
-  return { shape, ratios, skinTone, confidence, estimatedAgeGroup: ageGroup, ageConfidence };
+  return { shape, ratios, skinTone, confidence };
 }
