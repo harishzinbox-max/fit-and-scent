@@ -25,8 +25,6 @@ export interface FaceAnalysisResult {
   ratios: FaceRatios;
   skinTone: SkinTone;
   confidence: number; // 0-1, based on how cleanly ratios matched a bucket
-estimatedAgeGroup: AgeGroup;
-ageConfidence: number; // 0-1 — texture-based estimation is rough, so this is intentionally capped low
 }
 
 export interface BodyRatios {

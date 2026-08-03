@@ -1,4 +1,4 @@
-import type { FaceRatios, FaceShape, SkinTone, FaceAnalysisResult, AgeGroup } from "./types";
+import type { FaceRatios, FaceShape, SkinTone, FaceAnalysisResult } from "./types";
 
 /**
  * MediaPipe FaceLandmarker (468-point face mesh) landmark indices used here.
@@ -156,36 +156,7 @@ export function classifySkinTone(rgbSamples: [number, number, number][]): SkinTo
 
   return `${depth}-${undertone}` as SkinTone;
 }
-/**
- * Rough age-group estimate from skin texture variance (contrast/edge noise
- * in a small pixel patch around cheek + forehead sample points). Finer,
- * higher-contrast texture correlates with visible lines/wrinkles.
- *
- * This is a coarse geometric/pixel heuristic, not a trained age model —
- * confidence is deliberately capped so the UI always treats it as a guess
- * for the user to confirm, never a fact.
- */
-export function classifyAgeGroup(textureVariance: number): { ageGroup: AgeGroup; confidence: number } {
-  let ageGroup: AgeGroup;
-  let rawScore: number;
 
-  if (textureVariance < 60) {
-    ageGroup = "18-25";
-    rawScore = 60 - textureVariance;
-  } else if (textureVariance < 140) {
-    ageGroup = "26-40";
-    rawScore = 140 - textureVariance;
-  } else if (textureVariance < 260) {
-    ageGroup = "41-60";
-    rawScore = 260 - textureVariance;
-  } else {
-    ageGroup = "60+";
-    rawScore = textureVariance - 260;
-  }
-
-  const confidence = Math.min(0.55, 0.3 + rawScore / 400);
-  return { ageGroup, confidence };
-}
 export function analyzeFace(
   landmarks: Point[],
   rgbSamples: [number, number, number][],

@@ -17,9 +17,7 @@ interface Props {
   faceShape: FaceShape;
   detectedBodyBuild: BodyBuild;
   detectedConfidence: number;
-  detectedAgeGroup: AgeGroup;
-  detectedAgeConfidence: number;
-  onSubmit: (answers: QuizAnswers) => void;
+   onSubmit: (answers: QuizAnswers) => void;
 }
 
 const OCCASIONS: { value: QuizAnswers["occasion"]; label: string }[] = [
@@ -55,8 +53,6 @@ export default function OccasionQuiz({
   faceShape,
   detectedBodyBuild,
   detectedConfidence,
-  detectedAgeGroup,
-  detectedAgeConfidence,
   onSubmit,
 }: Props) {
   const [gender, setGender] = useState<Gender>("female");
@@ -65,7 +61,7 @@ export default function OccasionQuiz({
   const [scentFamily, setScentFamily] = useState<QuizAnswers["scentFamily"]>("no-preference");
   const [timeOfDay, setTimeOfDay] = useState<QuizAnswers["timeOfDay"]>("day");
   const bodyBuild = detectedBodyBuild; // auto-detected only, no manual override
-  const [ageGroup, setAgeGroup] = useState<AgeGroup>(detectedAgeGroup);
+  const [ageGroup, setAgeGroup] = useState<AgeGroup>("26-40");
 
   const wearOptions = gender === "male" ? MEN_WEAR_OPTIONS : WOMEN_WEAR_OPTIONS;
   const [wearPreference, setWearPreference] = useState<WearPreference>(wearOptions[0].value);
@@ -81,8 +77,7 @@ export default function OccasionQuiz({
   }
 
   const isLowConfidence = detectedConfidence < 0.45;
-  const isAgeLowConfidence = detectedAgeConfidence < 0.4;
-
+  
   function handleGenderChange(next: Gender) {
     setGender(next);
     const nextOptions = next === "male" ? MEN_WEAR_OPTIONS : WOMEN_WEAR_OPTIONS;
@@ -132,17 +127,7 @@ export default function OccasionQuiz({
       </div>
 
       <div className="quiz-field">
-        <span>
-          Age group{" "}
-          <span className="rec-confidence" style={{ display: "inline" }}>
-            (our guess from your photo — tap to correct it)
-          </span>
-        </span>
-        {isAgeLowConfidence && (
-          <p className="rec-sub" style={{ marginTop: "-0.25rem" }}>
-            We couldn&apos;t read your age range confidently from this photo — please confirm the right one below.
-          </p>
-        )}
+<span>Age group</span>
         <div className="accessory-picker">
           {AGE_GROUPS.map((a) => (
             <button

@@ -11,10 +11,6 @@ interface Props {
 
 type Status = "loading-model" | "detecting" | "done" | "error";
 
-function luminance(r: number, g: number, b: number): number {
-  return 0.299 * r + 0.587 * g + 0.114 * b;
-}
-
 export default function FaceScanner({ image, onResult }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [status, setStatus] = useState<Status>("loading-model");
@@ -68,26 +64,7 @@ export default function FaceScanner({ image, onResult }: Props) {
           return [r, g, b];
         });
 
-        // Texture variance for age estimation: sample a small pixel patch
-        // around each cheek/forehead point rather than a single pixel.
-        const patchSize = 7;
-        const half = Math.floor(patchSize / 2);
-        const luminances: number[] = [];
-        sampleIdx.forEach((idx) => {
-          const { x, y } = landmarks[idx];
-          const startX = Math.max(0, Math.round(x) - half);
-          const startY = Math.max(0, Math.round(y) - half);
-          const patch = ctx.getImageData(startX, startY, patchSize, patchSize).data;
-          for (let i = 0; i < patch.length; i += 4) {
-            luminances.push(luminance(patch[i], patch[i + 1], patch[i + 2]));
-          }
-        });
-        const meanLum = luminances.reduce((a, b) => a + b, 0) / luminances.length;
-        const textureVariance =
-          luminances.reduce((sum, v) => sum + (v - meanLum) ** 2, 0) / luminances.length;
-
-        console.log("DEBUG textureVariance:", textureVariance);
-          const analysis = analyzeFace(landmarks, rgbSamples, textureVariance);
+         const analysis = analyzeFace(landmarks, rgbSamples);
         if (cancelled) return;
         setStatus("done");
         onResult(analysis, landmarks);

@@ -83,8 +83,6 @@ export default function Home() {
             faceShape={faceResult?.shape ?? "oval"}
             detectedBodyBuild={bodyResult.build}
             detectedConfidence={bodyResult.confidence}
-            detectedAgeGroup={faceResult?.estimatedAgeGroup ?? "26-40"}
-            detectedAgeConfidence={faceResult?.ageConfidence ?? 0}
             onSubmit={(a) => {
               setAnswers(a);
               setStage("results");
