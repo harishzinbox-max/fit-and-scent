@@ -5,8 +5,8 @@ import type { Gender } from "@/lib/types";
 import { imageToBase64 } from "@/lib/imageToBase64";
 import { saveLook } from "@/lib/wardrobeStorage";
 import type { Occasion } from "@/lib/types";
-import ClickableLookImage from "./ClickableLookImage";
 import { buildShoppingLinks, buildMyntraLink } from "@/lib/affiliateLinks";
+import type { WearPreference } from "@/lib/rules/appropriatenessCheck";
 
 interface Props {
   image: HTMLImageElement;
@@ -18,10 +18,25 @@ interface Props {
   hairstyleSummary: string;
   fragranceSummary: string;
   accessorySummary: string;
+  wearPreference: WearPreference;
 }
 
 type Status = "idle" | "generating" | "done" | "error";
-
+// Clean, search-friendly category terms — separate from the full styling
+// sentence used in the Gemini prompt and the reasoning cards, which is too
+// descriptive for a product search to parse as one category.
+const WEAR_SHOP_TERM: Record<WearPreference, string> = {
+  dress: "dress",
+  saree: "saree",
+  "salwar-kameez": "salwar kameez",
+  "western-separates": "top and trousers",
+  gown: "gown",
+  "shirt-trouser": "shirt and trousers",
+  kurta: "kurta",
+  suit: "suit",
+  "ethnic-set": "ethnic set sherwani",
+  "casual-tee-jeans": "t-shirt and jeans",
+};
 export default function GeneratedLook({
   image,
   dressPrompt,
@@ -32,6 +47,7 @@ export default function GeneratedLook({
   hairstyleSummary,
   fragranceSummary,
   accessorySummary,
+  wearPreference,
 }: Props) {
   const [status, setStatus] = useState<Status>("idle");
   const [resultUrl, setResultUrl] = useState<string | null>(null);
@@ -105,16 +121,7 @@ export default function GeneratedLook({
 
       {status === "done" && resultUrl && (
         <div style={{ marginTop: "0.75rem" }}>
-           <ClickableLookImage
-            imageUrl={resultUrl}
-            hotspots={[
-              { id: "hair", label: "Hairstyle", searchTerm: `${gender === "male" ? "men's" : "women's"} ${hairstyleSummary}`, top: "0%", left: "20%", width: "60%", height: "16%" },
-              { id: "outfit", label: "Outfit", searchTerm: `${gender === "male" ? "men's" : "women's"} ${outfitSummary}`, top: "18%", left: "5%", width: "90%", height: "70%" },
-            ]}
-          />
-          <p className="rec-sub" style={{ marginTop: "0.4rem" }}>
-            Tap a highlighted area on the photo to shop that item.
-          </p>
+           <img src={resultUrl} alt="Generated look" className="result-photo" />
           <button
             type="button"
             className="quiz-submit"

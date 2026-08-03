@@ -160,6 +160,7 @@ You’ve used 90% of yo
             hairstyleSummary={hairstyle.style}
             fragranceSummary={`${fragrance.family} — ${fragrance.exampleNotes}`}
             accessorySummary={accessorySummary}
+            wearPreference={wearPreference}
           />
 
           <section className="rec-card">
