@@ -1,24 +1,30 @@
+@import url('https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@800,700,500&f[]=general-sans@600,500,400&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+
+
 /*
-  Design tokens — "atelier ticket" direction.
-  Palette: deep plum ink background, brass accent, dusty rose secondary,
-  warm paper text. Chosen to avoid the generic cream+terracotta and
-  near-black+neon defaults.
+  Design tokens — "sunset glass" direction.
+  Palette: near-black violet background, hot pink→orange gradient accent,
+  electric lime pop, glass-style cards. Built for a Gen-Z audience —
+  bold type, soft big shapes, layered glow instead of a flat blog look.
 */
 :root {
-  --ink: #1e1522;
-  --ink-raised: #271b2c;
-  --paper: #f1e9dc;
-  --paper-dim: #cabdae;
-  --brass: #c9a15c;
-  --rose: #c97b84;
-  --line: rgba(241, 233, 220, 0.14);
+  --ink: #120717;
+  --ink-raised: rgba(31, 15, 46, 0.55);
+  --paper: #fbf7ff;
+  --paper-dim: #b8a9c9;
+  --accent-a: #ff3d8a;
+  --accent-b: #ff7a45;
+  --lime: #c6ff3d;
+  --gradient: linear-gradient(135deg, var(--accent-a), var(--accent-b));
+  --line: rgba(255, 255, 255, 0.12);
 
-  --font-display: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
-  --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-display: "Cabinet Grotesk", "Segoe UI", sans-serif;
+  --font-body: "General Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-data: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 }
 
@@ -31,6 +37,15 @@ body {
   background: var(--ink);
   color: var(--paper);
   font-family: var(--font-body);
+  min-height: 100%;
+}
+
+body {
+  background-image:
+    radial-gradient(circle at 15% 0%, rgba(255, 61, 138, 0.22), transparent 45%),
+    radial-gradient(circle at 85% 15%, rgba(255, 122, 69, 0.16), transparent 40%),
+    radial-gradient(circle at 50% 100%, rgba(198, 255, 61, 0.08), transparent 35%);
+  background-attachment: fixed;
 }
 
 .sr-only {
@@ -58,9 +73,13 @@ body {
 
 .brand-mark {
   font-family: var(--font-display);
-  font-size: 1.75rem;
-  letter-spacing: 0.02em;
-  color: var(--paper);
+  font-weight: 800;
+  font-size: 2.1rem;
+  letter-spacing: -0.01em;
+  background: var(--gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 .brand-tag {
@@ -83,7 +102,7 @@ body {
 .upload-mark,
 .rec-card h3::before {
   font-family: var(--font-data);
-  color: var(--brass);
+  color: var(--accent-b);
   font-size: 0.8rem;
   letter-spacing: 0.08em;
   display: block;
@@ -99,28 +118,32 @@ body {
 .preview-wrap {
   width: 100%;
   max-width: 420px;
-  border: 1px dashed var(--paper-dim);
-  border-radius: 4px;
+  border: 1px dashed var(--line);
+  border-radius: 24px;
   padding: 3rem 1.5rem;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 0.5rem;
   background: var(--ink-raised);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
   cursor: pointer;
   text-align: center;
-  transition: border-color 0.15s ease;
+  transition: border-color 0.15s ease, transform 0.15s ease;
 }
 
 .upload-dropzone:hover,
 .upload-dropzone:focus-visible {
-  border-color: var(--brass);
+  border-color: var(--accent-a);
+  transform: translateY(-2px);
   outline: none;
 }
 
 .upload-title {
   font-family: var(--font-display);
-  font-size: 1.25rem;
+  font-weight: 700;
+  font-size: 1.3rem;
 }
 
 .upload-hint {
@@ -153,11 +176,11 @@ body {
 
 .scanner-status {
   font-family: var(--font-data);
-  color: var(--brass);
+  color: var(--accent-b);
 }
 
 .scanner-error {
-  color: var(--rose);
+  color: var(--accent-a);
 }
 
 .quiz {
@@ -171,8 +194,10 @@ body {
 .quiz-title,
 .results h2 {
   font-family: var(--font-display);
-  font-size: 1.6rem;
+  font-weight: 700;
+  font-size: 1.9rem;
   margin-bottom: 0.25rem;
+  letter-spacing: -0.01em;
 }
 
 .quiz-field {
@@ -185,26 +210,39 @@ body {
 
 .quiz-field select {
   background: var(--ink-raised);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--line);
-  border-radius: 4px;
-  padding: 0.6rem 0.7rem;
+  border-radius: 14px;
+  padding: 0.7rem 0.9rem;
   color: var(--paper);
   font-size: 0.95rem;
 }
 
 .quiz-submit {
   margin-top: 0.75rem;
-  background: var(--brass);
-  color: var(--ink);
+  background: var(--gradient);
+  color: #1a0a12;
   border: none;
-  border-radius: 4px;
-  padding: 0.8rem 1.2rem;
-  font-weight: 600;
+  border-radius: 999px;
+  padding: 0.85rem 1.4rem;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.95rem;
   cursor: pointer;
+  box-shadow: 0 8px 24px -8px rgba(255, 61, 138, 0.55);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
 .quiz-submit:hover {
-  filter: brightness(1.08);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px -8px rgba(255, 61, 138, 0.7);
+}
+
+.quiz-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
 }
 
 .results-grid {
@@ -228,7 +266,7 @@ body {
 .result-photo {
   width: 100%;
   display: block;
-  border-radius: 4px;
+  border-radius: 20px;
 }
 
 .overlay-svg {
@@ -241,23 +279,33 @@ body {
 .accessory-picker {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: 0.6rem;
   margin-top: 0.75rem;
 }
 
 .chip {
-  border: 1px solid var(--line);
-  background: var(--ink-raised);
-  color: var(--paper-dim);
+  border: 1px solid transparent;
+  background:
+    linear-gradient(var(--ink-raised), var(--ink-raised)) padding-box,
+    var(--gradient) border-box;
+  color: var(--paper);
   border-radius: 999px;
-  padding: 0.4rem 0.85rem;
+  padding: 0.5rem 1rem;
   font-size: 0.8rem;
+  font-weight: 500;
   cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.chip:hover {
+  transform: translateY(-1px);
 }
 
 .chip-active {
-  border-color: var(--brass);
-  color: var(--brass);
+  background:
+    linear-gradient(var(--ink), var(--ink)) padding-box,
+    linear-gradient(135deg, var(--lime), var(--accent-a)) border-box;
+  color: var(--lime);
 }
 
 .results-cards {
@@ -267,15 +315,18 @@ body {
 }
 
 .rec-card {
-  border: 1px dashed var(--line);
-  border-radius: 4px;
-  padding: 1.25rem 1.4rem;
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  padding: 1.5rem 1.6rem;
   background: var(--ink-raised);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
 }
 
 .rec-card h3 {
   font-family: var(--font-display);
-  font-size: 1.05rem;
+  font-weight: 700;
+  font-size: 1.15rem;
   margin-bottom: 0.5rem;
 }
 
@@ -283,12 +334,13 @@ body {
   font-size: 1.05rem;
   color: var(--paper);
   margin-bottom: 0.25rem;
+  font-weight: 500;
 }
 
 .rec-confidence {
   font-family: var(--font-data);
   font-size: 0.78rem;
-  color: var(--brass);
+  color: var(--lime);
 }
 
 .rec-sub {
@@ -298,7 +350,7 @@ body {
 }
 
 .rec-avoid {
-  color: var(--rose);
+  color: var(--accent-a);
 }
 
 .rec-reasoning {
