@@ -167,6 +167,21 @@ async function handleSaveToWardrobe() {
             </div>
           </div>
           <div style={{ marginTop: "1rem" }}>
+  <p className="rec-sub" style={{ marginBottom: "0.3rem", fontWeight: 600 }}>
+    Outfit
+  </p>
+  <div className="accessory-picker">
+    {buildShoppingLinks(`${gender === "male" ? "men's" : "women's"} ${WEAR_SHOP_TERM[wearPreference]}`).map((link) => (
+      <a key={link.source} href={link.url} target="_blank" rel="noopener noreferrer sponsored" className="chip">
+        {link.label}
+      </a>
+    ))}
+    <a href={buildMyntraLink(`${gender === "male" ? "men's" : "women's"} ${WEAR_SHOP_TERM[wearPreference]}`).url} target="_blank" rel="noopener noreferrer sponsored" className="chip">
+      Shop on Myntra
+    </a>
+  </div>
+</div>
+          <div style={{ marginTop: "1rem" }}>
             <p className="rec-sub" style={{ marginBottom: "0.3rem", fontWeight: 600 }}>
               Fragrance
             </p>
