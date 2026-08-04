@@ -54,7 +54,7 @@ export default function GeneratedLook({
   const [error, setError] = useState<string | null>(null);
   const [resultData, setResultData] = useState<{ imageBase64: string; mimeType: string } | null>(null);
   const [saved, setSaved] = useState(false);
-
+  const [saving, setSaving] = useState(false);
   async function handleGenerate() {
     setStatus("generating");
     setError(null);
@@ -89,7 +89,8 @@ export default function GeneratedLook({
   }
 
 async function handleSaveToWardrobe() {
-  if (!resultData) return;
+  if (!resultData || saving || saved) return;
+  setSaving(true);
   try {
     await saveLook({
       imageBase64: resultData.imageBase64,
@@ -104,6 +105,8 @@ async function handleSaveToWardrobe() {
     setSaved(true);
   } catch {
     setError("Couldn't save this look. Please try again.");
+  } finally {
+    setSaving(false);
   }
 }
 
@@ -126,15 +129,15 @@ async function handleSaveToWardrobe() {
       {status === "done" && resultUrl && (
         <div style={{ marginTop: "0.75rem" }}>
            <img src={resultUrl} alt="Generated look" className="result-photo" />
-          <button
-            type="button"
-            className="quiz-submit"
-            style={{ marginTop: "0.6rem" }}
-            onClick={handleSaveToWardrobe}
-            disabled={saved}
-          >
-            {saved ? "Saved to your wardrobe ✓" : "Save to my wardrobe"}
-          </button>
+<button
+  type="button"
+  className="quiz-submit"
+  style={{ marginTop: "0.6rem" }}
+  onClick={handleSaveToWardrobe}
+  disabled={saved || saving}
+>
+  {saved ? "Saved to your wardrobe ✓" : saving ? "Saving…" : "Save to my wardrobe"}
+</button>
           <button
             type="button"
             className="chip"
