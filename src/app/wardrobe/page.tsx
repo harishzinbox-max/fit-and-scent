@@ -4,18 +4,19 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import type { SavedLook } from "@/lib/types";
 import { getSavedLooks, deleteLook } from "@/lib/wardrobeStorage";
+import LoginForm from "@/components/LoginForm";
 
 export default function WardrobePage() {
   const [looks, setLooks] = useState<SavedLook[]>([]);
 
-  useEffect(() => {
-    setLooks(getSavedLooks());
-  }, []);
+useEffect(() => {
+  getSavedLooks().then(setLooks);
+}, []);
 
-  function handleDelete(id: string) {
-    deleteLook(id);
-    setLooks(getSavedLooks());
-  }
+async function handleDelete(id: string) {
+  await deleteLook(id);
+  setLooks(await getSavedLooks());
+}
 
   return (
     <div className="page">
@@ -26,7 +27,7 @@ export default function WardrobePage() {
           ← Back to stylist
         </Link>
       </header>
-
+    <LoginForm />
       <main className="page-main">
         {looks.length === 0 ? (
           <p className="rec-sub">

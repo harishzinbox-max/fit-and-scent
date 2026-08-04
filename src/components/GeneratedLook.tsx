@@ -88,9 +88,10 @@ export default function GeneratedLook({
     }
   }
 
-  function handleSaveToWardrobe() {
-    if (!resultData) return;
-    saveLook({
+async function handleSaveToWardrobe() {
+  if (!resultData) return;
+  try {
+    await saveLook({
       imageBase64: resultData.imageBase64,
       mimeType: resultData.mimeType,
       occasion,
@@ -101,7 +102,10 @@ export default function GeneratedLook({
       accessorySummary,
     });
     setSaved(true);
+  } catch {
+    setError("Couldn't save this look. Please try again.");
   }
+}
 
   return (
     <section className="rec-card">
