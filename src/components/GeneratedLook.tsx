@@ -5,7 +5,7 @@ import type { Gender } from "@/lib/types";
 import { imageToBase64 } from "@/lib/imageToBase64";
 import { saveLook } from "@/lib/wardrobeStorage";
 import type { Occasion } from "@/lib/types";
-import { buildShoppingLinks, buildMyntraLink } from "@/lib/affiliateLinks";
+import { buildShoppingLinks, buildMyntraLink, buildSalonLink } from "@/lib/affiliateLinks";
 import type { WearPreference } from "@/lib/rules/appropriatenessCheck";
 
 interface Props {
@@ -19,12 +19,12 @@ interface Props {
   fragranceSummary: string;
   accessorySummary: string;
   wearPreference: WearPreference;
+  footwearSummary: string;
+  footwearShopTerm: string;
 }
 
 type Status = "idle" | "generating" | "done" | "error";
-// Clean, search-friendly category terms — separate from the full styling
-// sentence used in the Gemini prompt and the reasoning cards, which is too
-// descriptive for a product search to parse as one category.
+
 const WEAR_SHOP_TERM: Record<WearPreference, string> = {
   dress: "dress",
   saree: "saree",
@@ -37,6 +37,7 @@ const WEAR_SHOP_TERM: Record<WearPreference, string> = {
   "ethnic-set": "ethnic set sherwani",
   "casual-tee-jeans": "t-shirt and jeans",
 };
+
 export default function GeneratedLook({
   image,
   dressPrompt,
@@ -48,6 +49,8 @@ export default function GeneratedLook({
   fragranceSummary,
   accessorySummary,
   wearPreference,
+  footwearSummary,
+  footwearShopTerm,
 }: Props) {
   const [status, setStatus] = useState<Status>("idle");
   const [resultUrl, setResultUrl] = useState<string | null>(null);
@@ -55,6 +58,7 @@ export default function GeneratedLook({
   const [resultData, setResultData] = useState<{ imageBase64: string; mimeType: string } | null>(null);
   const [saved, setSaved] = useState(false);
   const [saving, setSaving] = useState(false);
+
   async function handleGenerate() {
     setStatus("generating");
     setError(null);
@@ -88,27 +92,27 @@ export default function GeneratedLook({
     }
   }
 
-async function handleSaveToWardrobe() {
-  if (!resultData || saving || saved) return;
-  setSaving(true);
-  try {
-    await saveLook({
-      imageBase64: resultData.imageBase64,
-      mimeType: resultData.mimeType,
-      occasion,
-      gender,
-      outfitSummary,
-      hairstyleSummary,
-      fragranceSummary,
-      accessorySummary,
-    });
-    setSaved(true);
-  } catch {
-    setError("Couldn't save this look. Please try again.");
-  } finally {
-    setSaving(false);
+  async function handleSaveToWardrobe() {
+    if (!resultData || saving || saved) return;
+    setSaving(true);
+    try {
+      await saveLook({
+        imageBase64: resultData.imageBase64,
+        mimeType: resultData.mimeType,
+        occasion,
+        gender,
+        outfitSummary,
+        hairstyleSummary,
+        fragranceSummary,
+        accessorySummary,
+      });
+      setSaved(true);
+    } catch {
+      setError("Couldn't save this look. Please try again.");
+    } finally {
+      setSaving(false);
+    }
   }
-}
 
   return (
     <section className="rec-card">
@@ -128,16 +132,16 @@ async function handleSaveToWardrobe() {
 
       {status === "done" && resultUrl && (
         <div style={{ marginTop: "0.75rem" }}>
-           <img src={resultUrl} alt="Generated look" className="result-photo" />
-<button
-  type="button"
-  className="quiz-submit"
-  style={{ marginTop: "0.6rem" }}
-  onClick={handleSaveToWardrobe}
-  disabled={saved || saving}
->
-  {saved ? "Saved to your wardrobe ✓" : saving ? "Saving…" : "Save to my wardrobe"}
-</button>
+          <img src={resultUrl} alt="Generated look" className="result-photo" />
+          <button
+            type="button"
+            className="quiz-submit"
+            style={{ marginTop: "0.6rem" }}
+            onClick={handleSaveToWardrobe}
+            disabled={saved || saving}
+          >
+            {saved ? "Saved to your wardrobe ✓" : saving ? "Saving…" : "Save to my wardrobe"}
+          </button>
           <button
             type="button"
             className="chip"
@@ -151,7 +155,24 @@ async function handleSaveToWardrobe() {
           >
             Try again
           </button>
-            <div style={{ marginTop: "1rem" }}>
+
+          <div style={{ marginTop: "1rem" }}>
+            <p className="rec-sub" style={{ marginBottom: "0.3rem", fontWeight: 600 }}>
+              Outfit
+            </p>
+            <div className="accessory-picker">
+              {buildShoppingLinks(`${gender === "male" ? "men's" : "women's"} ${WEAR_SHOP_TERM[wearPreference]}`).map((link) => (
+                <a key={link.source} href={link.url} target="_blank" rel="noopener noreferrer sponsored" className="chip">
+                  {link.label}
+                </a>
+              ))}
+              <a href={buildMyntraLink(`${gender === "male" ? "men's" : "women's"} ${WEAR_SHOP_TERM[wearPreference]}`).url} target="_blank" rel="noopener noreferrer sponsored" className="chip">
+                Shop on Myntra
+              </a>
+            </div>
+          </div>
+
+          <div style={{ marginTop: "1rem" }}>
             <p className="rec-sub" style={{ marginBottom: "0.3rem", fontWeight: 600 }}>
               Accessories
             </p>
@@ -166,21 +187,7 @@ async function handleSaveToWardrobe() {
               </a>
             </div>
           </div>
-          <div style={{ marginTop: "1rem" }}>
-  <p className="rec-sub" style={{ marginBottom: "0.3rem", fontWeight: 600 }}>
-    Outfit
-  </p>
-  <div className="accessory-picker">
-    {buildShoppingLinks(`${gender === "male" ? "men's" : "women's"} ${WEAR_SHOP_TERM[wearPreference]}`).map((link) => (
-      <a key={link.source} href={link.url} target="_blank" rel="noopener noreferrer sponsored" className="chip">
-        {link.label}
-      </a>
-    ))}
-    <a href={buildMyntraLink(`${gender === "male" ? "men's" : "women's"} ${WEAR_SHOP_TERM[wearPreference]}`).url} target="_blank" rel="noopener noreferrer sponsored" className="chip">
-      Shop on Myntra
-    </a>
-  </div>
-</div>
+
           <div style={{ marginTop: "1rem" }}>
             <p className="rec-sub" style={{ marginBottom: "0.3rem", fontWeight: 600 }}>
               Fragrance
@@ -193,6 +200,41 @@ async function handleSaveToWardrobe() {
               ))}
               <a href={buildMyntraLink(`${fragranceSummary.split("—")[0].trim()} perfume`).url} target="_blank" rel="noopener noreferrer sponsored" className="chip">
                 Shop on Myntra
+              </a>
+            </div>
+          </div>
+
+          <div style={{ marginTop: "1rem" }}>
+            <p className="rec-sub" style={{ marginBottom: "0.3rem", fontWeight: 600 }}>
+              Footwear
+            </p>
+            <p className="rec-sub" style={{ marginBottom: "0.3rem" }}>
+              {footwearSummary}
+            </p>
+            <div className="accessory-picker">
+              {buildShoppingLinks(footwearShopTerm).map((link) => (
+                <a key={link.source} href={link.url} target="_blank" rel="noopener noreferrer sponsored" className="chip">
+                  {link.label}
+                </a>
+              ))}
+              <a href={buildMyntraLink(footwearShopTerm).url} target="_blank" rel="noopener noreferrer sponsored" className="chip">
+                Shop on Myntra
+              </a>
+            </div>
+          </div>
+
+          <div style={{ marginTop: "1rem" }}>
+            <p className="rec-sub" style={{ marginBottom: "0.3rem", fontWeight: 600 }}>
+              Grooming
+            </p>
+            <div className="accessory-picker">
+              
+                <a href={buildSalonLink(`${hairstyleSummary} haircut styling`).url}
+                target="_blank"
+                rel="noopener noreferrer sponsored"
+                className="chip"
+              >
+                Book a salon visit
               </a>
             </div>
           </div>

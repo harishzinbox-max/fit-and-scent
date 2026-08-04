@@ -11,6 +11,7 @@ import { recommendFragrance } from "@/lib/rules/fragranceRules";
 import { checkAppropriateness, wearLabel, type WearPreference } from "@/lib/rules/appropriatenessCheck";
 import { checkAccessoryFit } from "@/lib/rules/accessoryRules";
 import GeneratedLook from "./GeneratedLook";
+import { recommendFootwear } from "@/lib/rules/footwearRules";
 
 interface Props {
   image: HTMLImageElement;
@@ -44,6 +45,7 @@ export default function RecommendationResults({ image, faceResult, answers }: Pr
 
   const accessoryFit = checkAccessoryFit(answers.accessoryPreferences, answers.gender, answers.occasion);
   const accessorySummary = accessoryFit.chosenLabel;
+  const footwear = recommendFootwear(answers.gender, answers.occasion, answers.season, answers.timeOfDay, wearPreference);
 
   return (
     <div className="results">
@@ -136,19 +138,29 @@ export default function RecommendationResults({ image, faceResult, answers }: Pr
               ))}
             </ul>
           </section>
-
-          <GeneratedLook
-            image={image}
-            dressPrompt={dressPrompt}
-            hairPrompt={hairPrompt}
-            gender={answers.gender}
-            occasion={answers.occasion}
-            outfitSummary={outfit.silhouette}
-            hairstyleSummary={hairstyle.style}
-            fragranceSummary={`${fragrance.family} — ${fragrance.exampleNotes}`}
-            accessorySummary={accessorySummary}
-            wearPreference={wearPreference}
-          />
+<section className="rec-card">
+  <h3>Footwear</h3>
+  <p className="rec-headline">{footwear.type}</p>
+  <ul className="rec-reasoning">
+    {footwear.reasoning.map((r, i) => (
+      <li key={i}>{r}</li>
+    ))}
+  </ul>
+</section>
+      <GeneratedLook
+  image={image}
+  dressPrompt={dressPrompt}
+  hairPrompt={hairPrompt}
+  gender={answers.gender}
+  occasion={answers.occasion}
+  outfitSummary={outfit.silhouette}
+  hairstyleSummary={hairstyle.style}
+  fragranceSummary={`${fragrance.family} — ${fragrance.exampleNotes}`}
+  accessorySummary={accessorySummary}
+  wearPreference={wearPreference}
+  footwearSummary={footwear.type}
+  footwearShopTerm={footwear.shopTerm}
+/>
 
           <section className="rec-card">
             <h3>What to wear (scent)</h3>

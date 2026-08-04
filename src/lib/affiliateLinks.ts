@@ -31,3 +31,14 @@ export function buildMyntraLink(searchTerm: string): ShoppingLink {
   const q = encodeURIComponent(searchTerm);
   return { label: "Shop on Myntra", url: `https://www.myntra.com/${q}`, source: "Myntra" };
 }
+// Salon/grooming booking — no direct affiliate program confirmed yet, so this
+// points to a plain Urban Company city search for now. Swap in a real
+// affiliate/referral link format once you're approved for one.
+export function buildSalonLink(query: string): ShoppingLink {
+  const q = encodeURIComponent(query);
+  return {
+    label: "Book a salon visit",
+    url: `https://www.urbancompany.com/search?query=${q}`,
+    source: "Amazon", // placeholder source type; not shown to users differently
+  };
+}
