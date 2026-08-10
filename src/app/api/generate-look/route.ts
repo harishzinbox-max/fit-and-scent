@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
     const geminiResponse = await fetch(`${GEMINI_URL}?key=${apiKey}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
+body: JSON.stringify({
         contents: [
           {
             parts: [
@@ -48,6 +48,9 @@ export async function POST(req: NextRequest) {
             ],
           },
         ],
+        generationConfig: {
+          temperature: 0.15,
+        },
       }),
     });
 

@@ -37,6 +37,7 @@ export default function Home() {
             title="Add a front-facing photo"
             hint="Even lighting, face centered, no sunglasses."
             previewAlt="Uploaded portrait"
+            guideType="face"
             onImageReady={(img) => {
               setImage(img);
               setStage("scanning");
@@ -61,6 +62,7 @@ export default function Home() {
             title="Add a full-body photo"
             hint="Standing straight, facing the camera, arms slightly away from your body."
             previewAlt="Uploaded full-body photo"
+            guideType="body"
             onImageReady={(img) => {
               setBodyImage(img);
               setStage("body-scanning");
@@ -90,9 +92,15 @@ export default function Home() {
           />
         )}
 
-        {stage === "results" && image && faceResult && answers && (
-          <RecommendationResults image={image} landmarks={landmarks} faceResult={faceResult} answers={answers} />
-        )}
+{stage === "results" && image && faceResult && answers && bodyImage && (
+  <RecommendationResults
+    image={image}
+    bodyImage={bodyImage}
+    landmarks={landmarks}
+    faceResult={faceResult}
+    answers={answers}
+  />
+)}
       </main>
 
       <footer className="page-footer">
