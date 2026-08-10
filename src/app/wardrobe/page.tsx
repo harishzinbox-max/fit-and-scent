@@ -27,6 +27,16 @@ async function handleDelete(id: string) {
           ← Back to stylist
         </Link>
       </header>
+      <header className="page-header">
+  <span className="brand-mark">Fit&nbsp;&amp;&nbsp;Scent</span>
+  <p className="brand-tag">Your saved looks</p>
+  <Link href="/" className="chip" style={{ display: "inline-block", marginTop: "0.5rem" }}>
+    ← Back to stylist
+  </Link>
+  <Link href="/how-it-works" className="chip" style={{ display: "inline-block", marginTop: "0.5rem", marginLeft: "0.5rem" }}>
+    How it works
+  </Link>
+</header>
     <LoginForm />
       <main className="page-main">
         {looks.length === 0 ? (

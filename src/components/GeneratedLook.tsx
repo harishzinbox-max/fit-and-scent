@@ -7,6 +7,7 @@ import { saveLook } from "@/lib/wardrobeStorage";
 import { supabase } from "@/lib/supabaseClient";
 import { getCreditStatus, consumeCredit, type CreditStatus } from "@/lib/credits";
 import LoginForm from "./LoginForm";
+import Link from "next/link";
 import type { Occasion } from "@/lib/types";
 
 interface Props {
@@ -25,6 +26,7 @@ interface Props {
 }
 
 type Status = "idle" | "generating" | "done" | "error";
+const UNLIMITED_EMAILS = ["harishzinbox@gmail.com"];
 
 const LOADING_MESSAGES = [
   "Reading your photo…",
@@ -166,16 +168,18 @@ export default function GeneratedLook({
         url: `data:${full.mimeType};base64,${full.imageBase64}`,
       });
 
-      const consumed = await consumeCredit(credits);
-      if (consumed) {
-        setCredits((prev) =>
-          prev
-            ? prev.freeTryUsed
-              ? { ...prev, purchasedCredits: prev.purchasedCredits - 1 }
-              : { ...prev, freeTryUsed: true }
-            : prev
-        );
-      }
+if (!isUnlimited) {
+  const consumed = await consumeCredit(credits);
+  if (consumed) {
+    setCredits((prev) =>
+      prev
+        ? prev.freeTryUsed
+          ? { ...prev, purchasedCredits: prev.purchasedCredits - 1 }
+          : { ...prev, freeTryUsed: true }
+        : prev
+    );
+  }
+}
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
       setStatus("error");
@@ -227,7 +231,8 @@ export default function GeneratedLook({
     );
   }
 
-  const hasCredit = !credits.freeTryUsed || credits.purchasedCredits > 0;
+  const isUnlimited = userEmail ? UNLIMITED_EMAILS.includes(userEmail) : false;
+const hasCredit = isUnlimited || !credits.freeTryUsed || credits.purchasedCredits > 0;
 
   if (!hasCredit && status === "idle") {
     return (
@@ -240,6 +245,16 @@ export default function GeneratedLook({
             Buy 5 more tries — coming soon
           </button>
         </div>
+        <div className="paywall-card" style={{ marginTop: "0.9rem" }}>
+  <h4>You've used your free try</h4>
+  <p>Get 5 more AI makeovers for ₹199 to keep exploring looks.</p>
+  <button type="button" className="quiz-submit" style={{ width: "100%" }} disabled>
+    Buy 5 more tries — coming soon
+  </button>
+  <Link href="/how-it-works" className="chip" style={{ display: "inline-block", marginTop: "0.75rem" }}>
+    See how it works
+  </Link>
+</div>
       </div>
     );
   }
@@ -249,9 +264,13 @@ export default function GeneratedLook({
       {status === "idle" && (
         <>
           <img src={bodyImage.src} alt="Your uploaded photo" className="result-photo" />
-          <p className="credits-badge" style={{ marginTop: "0.6rem" }}>
-            {!credits.freeTryUsed ? "1 free try available" : `${credits.purchasedCredits} tries remaining`}
-          </p>
+<p className="credits-badge" style={{ marginTop: "0.6rem" }}>
+  {isUnlimited
+    ? "Unlimited tries ✨"
+    : !credits.freeTryUsed
+    ? "1 free try available"
+    : `${credits.purchasedCredits} tries remaining`}
+</p>
           <button
             type="button"
             className="quiz-submit"

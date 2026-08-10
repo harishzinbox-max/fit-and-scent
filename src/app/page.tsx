@@ -28,6 +28,13 @@ export default function Home() {
         <Link href="/wardrobe" className="chip" style={{ display: "inline-block", marginTop: "0.5rem" }}>
          My wardrobe
          </Link>
+         
+<Link href="/how-it-works" className="chip" style={{ display: "inline-block", marginTop: "0.5rem", marginLeft: "0.5rem" }}>
+ How it works
+ </Link>
+ <Link href="/guides" className="chip" style={{ display: "inline-block", marginTop: "0.5rem", marginLeft: "0.5rem" }}>
+ Guides
+ </Link>
       </header>
 
       <main className="page-main">
