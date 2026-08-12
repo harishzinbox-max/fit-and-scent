@@ -19,6 +19,12 @@ const GUIDES = [
     summary: "Fresh, floral, woody, oriental — what they actually smell like and when to wear each.",
     icon: "🌸",
   },
+  {
+    slug: "accessories-and-footwear",
+    title: "Accessories & Footwear: The Details That Finish a Look",
+    summary: "How to pick accessories and shoes that suit the occasion — without overdoing it or under-dressing.",
+    icon: "👞",
+  },
 ];
 
 export default function GuidesIndexPage() {
