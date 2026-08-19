@@ -7,7 +7,6 @@ import { saveLook } from "@/lib/wardrobeStorage";
 import { supabase } from "@/lib/supabaseClient";
 import { getCreditStatus, consumeCredit, type CreditStatus } from "@/lib/credits";
 import LoginForm from "./LoginForm";
-import Link from "next/link";
 import type { Occasion } from "@/lib/types";
 
 interface Props {
@@ -26,6 +25,7 @@ interface Props {
 }
 
 type Status = "idle" | "generating" | "done" | "error";
+
 const UNLIMITED_EMAILS = ["harishzinbox@gmail.com"];
 
 const LOADING_MESSAGES = [
@@ -64,6 +64,20 @@ function cropCloseup(fullBase64: string, mimeType: string): Promise<{ imageBase6
   });
 }
 
+function loadRazorpayScript(): Promise<boolean> {
+  return new Promise((resolve) => {
+    if (window.Razorpay) {
+      resolve(true);
+      return;
+    }
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+}
+
 export default function GeneratedLook({
   image,
   bodyImage,
@@ -89,6 +103,8 @@ export default function GeneratedLook({
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [credits, setCredits] = useState<CreditStatus | null>(null);
   const [creditsLoading, setCreditsLoading] = useState(true);
+  const [buying, setBuying] = useState(false);
+  const [buyError, setBuyError] = useState<string | null>(null);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -168,22 +184,91 @@ export default function GeneratedLook({
         url: `data:${full.mimeType};base64,${full.imageBase64}`,
       });
 
-if (!isUnlimited) {
-  const consumed = await consumeCredit(credits);
-  if (consumed) {
-    setCredits((prev) =>
-      prev
-        ? prev.freeTryUsed
-          ? { ...prev, purchasedCredits: prev.purchasedCredits - 1 }
-          : { ...prev, freeTryUsed: true }
-        : prev
-    );
-  }
-}
+      const isUnlimited = userEmail ? UNLIMITED_EMAILS.includes(userEmail) : false;
+      if (!isUnlimited) {
+        const consumed = await consumeCredit(credits);
+        if (consumed) {
+          setCredits((prev) =>
+            prev
+              ? prev.freeTryUsed
+                ? { ...prev, purchasedCredits: prev.purchasedCredits - 1 }
+                : { ...prev, freeTryUsed: true }
+              : prev
+          );
+        }
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
       setStatus("error");
       onResult?.(null);
+    }
+  }
+
+  async function handleBuyCredits() {
+    setBuying(true);
+    setBuyError(null);
+
+    try {
+      const scriptLoaded = await loadRazorpayScript();
+      if (!scriptLoaded) {
+        throw new Error("Couldn't load the payment window. Check your connection and try again.");
+      }
+
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) {
+        throw new Error("Please sign in again before purchasing.");
+      }
+
+      const orderRes = await fetch("/api/create-order", { method: "POST" });
+      const orderData = await orderRes.json();
+      if (!orderRes.ok) {
+        throw new Error(orderData.error || "Couldn't start checkout. Try again.");
+      }
+
+      const razorpay = new window.Razorpay({
+        key: orderData.keyId,
+        amount: orderData.amount,
+        currency: orderData.currency,
+        order_id: orderData.orderId,
+        name: "Fit & Scent",
+        description: "5 AI makeover tries",
+        prefill: { email: user.email ?? "" },
+        theme: { color: "#a88648" },
+        handler: async (response: {
+          razorpay_order_id: string;
+          razorpay_payment_id: string;
+          razorpay_signature: string;
+        }) => {
+          try {
+            const verifyRes = await fetch("/api/verify-payment", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ ...response, userId: user.id }),
+            });
+            const verifyData = await verifyRes.json();
+            if (!verifyRes.ok) {
+              throw new Error(verifyData.error || "Payment verification failed.");
+            }
+            setCredits((prev) =>
+              prev ? { ...prev, purchasedCredits: verifyData.newCredits } : prev
+            );
+          } catch (err) {
+            setBuyError(err instanceof Error ? err.message : "Payment verification failed. Contact support.");
+          } finally {
+            setBuying(false);
+          }
+        },
+        modal: {
+          ondismiss: () => setBuying(false),
+        },
+      });
+
+      razorpay.open();
+    } catch (err) {
+      setBuyError(err instanceof Error ? err.message : "Something went wrong.");
+      setBuying(false);
     }
   }
 
@@ -209,7 +294,6 @@ if (!isUnlimited) {
     }
   }
 
-  // Not signed in — show the sign-in form instead of any generate controls.
   if (!userEmail) {
     return (
       <div>
@@ -231,8 +315,8 @@ if (!isUnlimited) {
     );
   }
 
-  const isUnlimited = userEmail ? UNLIMITED_EMAILS.includes(userEmail) : false;
-const hasCredit = isUnlimited || !credits.freeTryUsed || credits.purchasedCredits > 0;
+  const isUnlimited = UNLIMITED_EMAILS.includes(userEmail);
+  const hasCredit = isUnlimited || !credits.freeTryUsed || credits.purchasedCredits > 0;
 
   if (!hasCredit && status === "idle") {
     return (
@@ -241,20 +325,17 @@ const hasCredit = isUnlimited || !credits.freeTryUsed || credits.purchasedCredit
         <div className="paywall-card" style={{ marginTop: "0.9rem" }}>
           <h4>You've used your free try</h4>
           <p>Get 5 more AI makeovers for ₹199 to keep exploring looks.</p>
-          <button type="button" className="quiz-submit" style={{ width: "100%" }} disabled>
-            Buy 5 more tries — coming soon
+          <button
+            type="button"
+            className="quiz-submit"
+            style={{ width: "100%" }}
+            onClick={handleBuyCredits}
+            disabled={buying}
+          >
+            {buying ? "Opening checkout…" : "Buy 5 more tries — ₹199"}
           </button>
+          {buyError && <p className="scanner-error" style={{ marginTop: "0.6rem" }}>{buyError}</p>}
         </div>
-        <div className="paywall-card" style={{ marginTop: "0.9rem" }}>
-  <h4>You've used your free try</h4>
-  <p>Get 5 more AI makeovers for ₹199 to keep exploring looks.</p>
-  <button type="button" className="quiz-submit" style={{ width: "100%" }} disabled>
-    Buy 5 more tries — coming soon
-  </button>
-  <Link href="/how-it-works" className="chip" style={{ display: "inline-block", marginTop: "0.75rem" }}>
-    See how it works
-  </Link>
-</div>
       </div>
     );
   }
@@ -264,13 +345,13 @@ const hasCredit = isUnlimited || !credits.freeTryUsed || credits.purchasedCredit
       {status === "idle" && (
         <>
           <img src={bodyImage.src} alt="Your uploaded photo" className="result-photo" />
-<p className="credits-badge" style={{ marginTop: "0.6rem" }}>
-  {isUnlimited
-    ? "Unlimited tries ✨"
-    : !credits.freeTryUsed
-    ? "1 free try available"
-    : `${credits.purchasedCredits} tries remaining`}
-</p>
+          <p className="credits-badge" style={{ marginTop: "0.6rem" }}>
+            {isUnlimited
+              ? "Unlimited tries ✨"
+              : !credits.freeTryUsed
+              ? "1 free try available"
+              : `${credits.purchasedCredits} tries remaining`}
+          </p>
           <button
             type="button"
             className="quiz-submit"
