@@ -31,8 +31,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Missing payment details." }, { status: 400 });
   }
 
-  // Verify the payment signature — this proves the payment actually happened
-  // and wasn't faked by someone calling this route directly with made-up IDs.
   const expectedSignature = crypto
     .createHmac("sha256", keySecret)
     .update(`${razorpay_order_id}|${razorpay_payment_id}`)
@@ -42,8 +40,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Payment verification failed." }, { status: 400 });
   }
 
-  // Signature is valid — credit the user's account using the service role
-  // key, which bypasses RLS since this is a trusted server-side operation.
   const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
   const { data: existing, error: fetchError } = await supabaseAdmin
@@ -53,7 +49,11 @@ export async function POST(req: NextRequest) {
     .maybeSingle();
 
   if (fetchError) {
-    return NextResponse.json({ error: "Failed to fetch account." }, { status: 500 });
+    console.error("verify-payment fetchError:", JSON.stringify(fetchError));
+    return NextResponse.json(
+      { error: "Failed to fetch account.", detail: fetchError.message, code: fetchError.code, hint: fetchError.hint },
+      { status: 500 }
+    );
   }
 
   const currentCredits = existing?.purchased_credits ?? 0;
@@ -63,7 +63,11 @@ export async function POST(req: NextRequest) {
     .upsert({ user_id: userId, purchased_credits: currentCredits + PACK_CREDITS, updated_at: new Date().toISOString() });
 
   if (updateError) {
-    return NextResponse.json({ error: "Payment verified but failed to credit account. Contact support." }, { status: 500 });
+    console.error("verify-payment updateError:", JSON.stringify(updateError));
+    return NextResponse.json(
+      { error: "Payment verified but failed to credit account. Contact support.", detail: updateError.message, code: updateError.code },
+      { status: 500 }
+    );
   }
 
   return NextResponse.json({ success: true, newCredits: currentCredits + PACK_CREDITS });
