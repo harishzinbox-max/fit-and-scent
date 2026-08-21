@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"; 
 import crypto from "crypto";
-import { createClient } from "@supabase/supabase-js";
+import { createClient } from "@supabase/supabase-js"; 
 
 const PACK_CREDITS = 5;
 
