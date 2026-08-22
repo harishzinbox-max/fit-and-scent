@@ -26,6 +26,8 @@ const WEAR_SHOP_TERM: Record<WearPreference, string> = {
   dress: "dress",
   saree: "saree",
   "salwar-kameez": "salwar kameez",
+    lehenga: "bridal lehenga",
+  "sherwani-groom": "groom sherwani",
   "western-separates": "top and trousers",
   gown: "gown",
   "shirt-trouser": "shirt and trousers",
