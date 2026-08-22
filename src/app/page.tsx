@@ -35,6 +35,16 @@ export default function Home() {
     return () => data.subscription.unsubscribe();
   }, []);
 
+  function resetToUpload() {
+    setImage(null);
+    setLandmarks([]);
+    setFaceResult(null);
+    setBodyImage(null);
+    setBodyResult(null);
+    setAnswers(null);
+    setStage("upload");
+  }
+
   return (
     <div className="page">
       <header className="page-header">
@@ -126,13 +136,23 @@ export default function Home() {
         )}
 
 {stage === "results" && image && faceResult && answers && bodyImage && (
-  <RecommendationResults
-    image={image}
-    bodyImage={bodyImage}
-    landmarks={landmarks}
-    faceResult={faceResult}
-    answers={answers}
-  />
+  <>
+    <button
+      type="button"
+      className="chip"
+      style={{ marginBottom: "1rem" }}
+      onClick={resetToUpload}
+    >
+      ← Back to My Stylist
+    </button>
+    <RecommendationResults
+      image={image}
+      bodyImage={bodyImage}
+      landmarks={landmarks}
+      faceResult={faceResult}
+      answers={answers}
+    />
+  </>
 )}
       </main>
 
