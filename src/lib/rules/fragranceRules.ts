@@ -8,6 +8,9 @@ const OCCASION_INTENSITY: Record<Occasion, string> = {
   "casual-day": "light, easy sillage for everyday wear",
   "formal-evening": "strong, rich sillage that holds up after dark",
   "indian-wedding": "strong, rich, and long-lasting — traditional celebrations run long and call for real staying power",
+  "indian-traditional": "moderate, warm sillage suited to long traditional ceremonies and gatherings",
+  hawaiian: "light, fresh, and breezy — matches a relaxed tropical setting",
+  "formal-suit-tie": "refined, moderate sillage appropriate for formal business or black-tie settings",
 };
 
 const SEASON_FAMILY_BIAS: Record<Season, string[]> = {

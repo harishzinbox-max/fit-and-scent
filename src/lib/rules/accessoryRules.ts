@@ -35,6 +35,9 @@ const WOMEN_ACCESSORIES: Record<Occasion, { items: string[]; why: string }> = {
   "casual-day": { items: ["sunglasses", "crossbody bag", "simple studs"], why: "practical pieces for an everyday look" },
   "formal-evening": { items: ["statement necklace", "evening clutch", "heels"], why: "formal settings support more elevated, dressed-up pieces" },
   "indian-wedding": { items: ["kundan or polki jewelry set", "maang tikka", "bridal clutch"], why: "traditional bridal wear is paired with statement kundan/polki jewelry and a maang tikka" },
+  "indian-traditional": { items: ["oxidized silver jewelry", "bindi", "traditional bangles"], why: "regional-style jewelry completes the traditional look authentically" },
+  hawaiian: { items: ["flower lei", "shell jewelry", "sunglasses"], why: "tropical accents match the relaxed Hawaiian theme" },
+  "formal-suit-tie": { items: ["structured watch", "minimal stud earrings", "leather clutch"], why: "formal tailoring calls for polished, understated accessories" },
 };
 
 const MEN_ACCESSORIES: Record<Occasion, { items: string[]; why: string }> = {
@@ -45,6 +48,9 @@ const MEN_ACCESSORIES: Record<Occasion, { items: string[]; why: string }> = {
   "casual-day": { items: ["sunglasses", "canvas bag", "cap"], why: "practical pieces for an everyday look" },
   "formal-evening": { items: ["formal watch", "cufflinks", "tie pin"], why: "formal settings support more polished accessories" },
   "indian-wedding": { items: ["safa or turban", "kalgi brooch"], why: "a groom's traditional look is completed with a safa (turban) and a kalgi brooch" },
+  "indian-traditional": { items: ["traditional turban or headwear", "mojaris"], why: "regional headwear and footwear complete the traditional look" },
+  hawaiian: { items: ["flower lei", "straw hat", "sunglasses"], why: "tropical accents match the relaxed Hawaiian theme" },
+  "formal-suit-tie": { items: ["silk tie", "cufflinks", "pocket square"], why: "a tie, cufflinks, and pocket square complete a sharp formal look" },
 };
 
 export function recommendAccessories(gender: Gender, occasion: Occasion): AccessoryRecommendation {
@@ -60,8 +66,6 @@ export interface AccessoryFitResult {
   reasoning: string[];
 }
 
-// Compares the user's picks against the occasion-appropriate list already
-// defined above, and explains the fit rather than overriding their choice.
 export function checkAccessoryFit(
   selected: string[],
   gender: Gender,
@@ -90,9 +94,7 @@ export function checkAccessoryFit(
 
   return { chosenLabel: chosen.join(", "), reasoning };
 }
-// Tool-recommended accessory picks per occasion, using the same option
-// values shown in the picker (WOMEN_ACCESSORY_OPTIONS / MEN_ACCESSORY_OPTIONS)
-// so the result can be applied directly to accessoryPreferences.
+
 const WOMEN_ACCESSORY_RECOMMEND: Record<Occasion, string[]> = {
   office: ["watch", "earrings"],
   "wedding-guest": ["earrings", "bangles", "clutch"],
@@ -101,6 +103,9 @@ const WOMEN_ACCESSORY_RECOMMEND: Record<Occasion, string[]> = {
   "casual-day": ["sunglasses", "watch"],
   "formal-evening": ["necklace", "clutch"],
   "indian-wedding": ["necklace", "earrings", "bangles"],
+  "indian-traditional": ["bangles", "earrings"],
+  hawaiian: ["sunglasses"],
+  "formal-suit-tie": ["watch", "earrings"],
 };
 
 const MEN_ACCESSORY_RECOMMEND: Record<Occasion, string[]> = {
@@ -111,6 +116,9 @@ const MEN_ACCESSORY_RECOMMEND: Record<Occasion, string[]> = {
   "casual-day": ["cap", "sunglasses"],
   "formal-evening": ["watch"],
   "indian-wedding": ["watch"],
+  "indian-traditional": ["watch"],
+  hawaiian: ["sunglasses", "cap"],
+  "formal-suit-tie": ["watch"],
 };
 
 export function recommendAccessoryValues(gender: Gender, occasion: Occasion): string[] {

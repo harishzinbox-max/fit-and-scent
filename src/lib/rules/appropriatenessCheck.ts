@@ -1,7 +1,7 @@
 import type { Occasion, Gender } from "../types";
 
-export type WomenswearPreference = "dress" | "saree" | "salwar-kameez" | "western-separates" | "gown" | "lehenga";
-export type MenswearPreference = "shirt-trouser" | "kurta" | "suit" | "ethnic-set" | "casual-tee-jeans" | "sherwani-groom";
+export type WomenswearPreference = "dress" | "saree" | "salwar-kameez" | "western-separates" | "gown" | "lehenga" | "hawaiian-sundress";
+export type MenswearPreference = "shirt-trouser" | "kurta" | "suit" | "ethnic-set" | "casual-tee-jeans" | "sherwani-groom" | "hawaiian-shirt-shorts";
 export type WearPreference = WomenswearPreference | MenswearPreference;
 
 export const WOMEN_WEAR_OPTIONS: { value: WomenswearPreference; label: string }[] = [
@@ -11,6 +11,7 @@ export const WOMEN_WEAR_OPTIONS: { value: WomenswearPreference; label: string }[
   { value: "western-separates", label: "Western separates" },
   { value: "gown", label: "Gown" },
   { value: "lehenga", label: "Bridal lehenga" },
+  { value: "hawaiian-sundress", label: "Hawaiian sundress" },
 ];
 
 export const MEN_WEAR_OPTIONS: { value: MenswearPreference; label: string }[] = [
@@ -20,6 +21,7 @@ export const MEN_WEAR_OPTIONS: { value: MenswearPreference; label: string }[] = 
   { value: "ethnic-set", label: "Ethnic set (sherwani/bandhgala)" },
   { value: "casual-tee-jeans", label: "Casual tee & jeans" },
   { value: "sherwani-groom", label: "Groom's sherwani" },
+  { value: "hawaiian-shirt-shorts", label: "Hawaiian shirt & shorts" },
 ];
 
 const WEAR_LABEL: Record<WearPreference, string> = {
@@ -29,16 +31,16 @@ const WEAR_LABEL: Record<WearPreference, string> = {
   "western-separates": "Western separates",
   gown: "A gown",
   lehenga: "A bridal lehenga",
+  "hawaiian-sundress": "A Hawaiian sundress",
   "shirt-trouser": "A shirt and trouser set",
   kurta: "A kurta",
   suit: "A suit",
   "ethnic-set": "An ethnic set",
   "casual-tee-jeans": "Casual wear",
   "sherwani-groom": "A groom's sherwani",
+  "hawaiian-shirt-shorts": "A Hawaiian shirt and shorts set",
 };
 
-// Split by gender so a mismatch on one wardrobe never surfaces the other
-// wardrobe's items as the suggested alternative.
 const WOMEN_OCCASION_COMPATIBLE_WEAR: Record<Occasion, WomenswearPreference[]> = {
   office: ["dress", "western-separates", "salwar-kameez"],
   "wedding-guest": ["saree", "gown", "salwar-kameez"],
@@ -47,6 +49,9 @@ const WOMEN_OCCASION_COMPATIBLE_WEAR: Record<Occasion, WomenswearPreference[]> =
   "casual-day": ["western-separates", "dress"],
   "formal-evening": ["gown", "saree"],
   "indian-wedding": ["lehenga", "saree"],
+  "indian-traditional": ["saree", "salwar-kameez"],
+  hawaiian: ["hawaiian-sundress", "western-separates"],
+  "formal-suit-tie": ["western-separates", "gown"],
 };
 
 const MEN_OCCASION_COMPATIBLE_WEAR: Record<Occasion, MenswearPreference[]> = {
@@ -57,6 +62,9 @@ const MEN_OCCASION_COMPATIBLE_WEAR: Record<Occasion, MenswearPreference[]> = {
   "casual-day": ["casual-tee-jeans", "kurta"],
   "formal-evening": ["suit", "ethnic-set"],
   "indian-wedding": ["sherwani-groom", "ethnic-set"],
+  "indian-traditional": ["kurta", "ethnic-set"],
+  hawaiian: ["hawaiian-shirt-shorts", "casual-tee-jeans"],
+  "formal-suit-tie": ["suit"],
 };
 
 export interface AppropriatenessResult {
@@ -96,10 +104,7 @@ export function checkAppropriateness(
 export function wearLabel(pref: WearPreference): string {
   return WEAR_LABEL[pref];
 }
-// Heuristic tool-recommendation: picks the best-fit item from the
-// occasion-compatible list, leaning toward the simpler/lighter end for
-// day settings and the more elevated end for evening settings. Season is
-// accepted for future refinement but currently only nudges casual-day.
+
 export function recommendWearPreference(
   gender: Gender,
   occasion: Occasion,

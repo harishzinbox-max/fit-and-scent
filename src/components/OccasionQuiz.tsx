@@ -11,6 +11,7 @@ import {
 import { WOMEN_HAIRSTYLE_OPTIONS, MEN_HAIRSTYLE_OPTIONS } from "@/lib/rules/hairstyleOptions";
 import { recommendHairstyleValue } from "@/lib/rules/hairstyleFit";
 import { WOMEN_ACCESSORY_OPTIONS, MEN_ACCESSORY_OPTIONS, recommendAccessoryValues } from "@/lib/rules/accessoryRules";
+import { INDIAN_STATE_OPTIONS } from "@/lib/rules/stateWearRules";
 import HairstyleIcon from "./HairstyleIcon";
 
 interface Props {
@@ -29,6 +30,9 @@ function getOccasions(gender: Gender): { value: QuizAnswers["occasion"]; label: 
     { value: "casual-day", label: "Casual day out" },
     { value: "formal-evening", label: "Formal evening" },
     { value: "indian-wedding", label: gender === "male" ? "Indian Bridegroom" : "Indian Bride" },
+    { value: "indian-traditional", label: "Indian Traditional Wear (by state)" },
+    { value: "hawaiian", label: "Hawaiian theme" },
+    { value: "formal-suit-tie", label: "Formal suit, tie & blazer" },
   ];
 }
 
@@ -60,6 +64,7 @@ export default function OccasionQuiz({
 }: Props) {
   const [gender, setGender] = useState<Gender>("female");
   const [occasion, setOccasion] = useState<QuizAnswers["occasion"]>("office");
+  const [indianState, setIndianState] = useState<string>(INDIAN_STATE_OPTIONS[0].value);
   const [season, setSeason] = useState<QuizAnswers["season"]>("year-round");
   const [scentFamily, setScentFamily] = useState<QuizAnswers["scentFamily"]>("no-preference");
   const [timeOfDay, setTimeOfDay] = useState<QuizAnswers["timeOfDay"]>("day");
@@ -76,6 +81,7 @@ export default function OccasionQuiz({
   );
   const accessoryOptions = gender === "male" ? MEN_ACCESSORY_OPTIONS : WOMEN_ACCESSORY_OPTIONS;
   const [accessoryPreferences, setAccessoryPreferences] = useState<string[]>([]);
+  const [facialHairPreference, setFacialHairPreference] = useState<QuizAnswers["facialHairPreference"]>("none");
 
   function toggleAccessory(value: string) {
     setAccessoryPreferences((prev) =>
@@ -110,7 +116,20 @@ export default function OccasionQuiz({
       className="quiz"
       onSubmit={(e) => {
         e.preventDefault();
-        onSubmit({ occasion, season, scentFamily, timeOfDay, bodyBuild, gender, ageGroup, wearPreference, hairPreference, accessoryPreferences });
+        onSubmit({
+          occasion,
+          season,
+          scentFamily,
+          timeOfDay,
+          bodyBuild,
+          gender,
+          ageGroup,
+          wearPreference,
+          hairPreference,
+          accessoryPreferences,
+          ...(gender === "male" ? { facialHairPreference } : {}),
+          ...(occasion === "indian-traditional" ? { indianState } : {}),
+        });
       }}
     >
       <span className="upload-mark">03</span>
@@ -175,6 +194,19 @@ export default function OccasionQuiz({
         </select>
       </label>
 
+      {occasion === "indian-traditional" && (
+        <label className="quiz-field">
+          Select state
+          <select value={indianState} onChange={(e) => setIndianState(e.target.value)}>
+            {INDIAN_STATE_OPTIONS.map((s) => (
+              <option key={s.value} value={s.value}>
+                {s.label}
+              </option>
+            ))}
+          </select>
+        </label>
+      )}
+
       <div className="quiz-field">
         <span>What would you like to wear?</span>
         <div className="accessory-picker">
@@ -233,6 +265,31 @@ export default function OccasionQuiz({
           ✨ Tool Recommendation
         </button>
       </div>
+
+      {gender === "male" && (
+        <div className="quiz-field">
+          <span>Facial hair</span>
+          <div className="accessory-picker" style={{ flexWrap: "wrap", gap: "0.6rem" }}>
+            {(
+              [
+                { value: "none", label: "No facial hair" },
+                { value: "moustache", label: "Moustache only" },
+                { value: "beard", label: "Beard only" },
+                { value: "moustache-and-beard", label: "Beard & moustache" },
+              ] as { value: NonNullable<QuizAnswers["facialHairPreference"]>; label: string }[]
+            ).map((f) => (
+              <button
+                type="button"
+                key={f.value}
+                className={`chip ${facialHairPreference === f.value ? "chip-active" : ""}`}
+                onClick={() => setFacialHairPreference(f.value)}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       <label className="quiz-field">
         Season

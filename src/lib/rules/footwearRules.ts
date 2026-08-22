@@ -3,7 +3,7 @@ import type { WearPreference } from "./appropriatenessCheck";
 
 export interface FootwearRecommendation {
   type: string;
-  shopTerm: string; // clean 2-4 word search term for affiliate links
+  shopTerm: string;
   reasoning: string[];
 }
 
@@ -65,6 +65,24 @@ export function recommendFootwear(
           type: "Embellished mojaris or juttis",
           shopTerm: "men's wedding mojari juttis",
           reasoning: ["A groom's traditional outfit is completed with embellished mojaris or juttis, not Western dress shoes."],
+        };
+      case "indian-traditional":
+        return {
+          type: "Traditional mojaris or juttis",
+          shopTerm: "men's traditional mojaris",
+          reasoning: ["Regional traditional wear pairs naturally with mojaris or juttis rather than Western shoes."],
+        };
+      case "hawaiian":
+        return {
+          type: "Sandals or flip-flops",
+          shopTerm: "men's beach sandals",
+          reasoning: ["A relaxed tropical theme calls for open, casual beach footwear."],
+        };
+      case "formal-suit-tie":
+        return {
+          type: "Oxford dress shoes",
+          shopTerm: "men's oxford dress shoes",
+          reasoning: ["A full suit-and-tie look calls for classic, polished oxford dress shoes."],
         };
       case "casual-day":
       default:
@@ -130,6 +148,24 @@ export function recommendFootwear(
         type: "Embellished bridal juttis or heels",
         shopTerm: "women's bridal juttis heels",
         reasoning: ["Traditional bridal wear pairs best with embellished juttis or heels in gold or matching tones."],
+      };
+    case "indian-traditional":
+      return {
+        type: "Traditional embellished juttis",
+        shopTerm: "women's traditional juttis",
+        reasoning: ["Regional traditional wear pairs naturally with embellished juttis rather than Western footwear."],
+      };
+    case "hawaiian":
+      return {
+        type: "Flat sandals",
+        shopTerm: "women's flat sandals",
+        reasoning: ["A relaxed tropical theme calls for open, casual flat sandals."],
+      };
+    case "formal-suit-tie":
+      return {
+        type: "Pointed-toe heels or pumps",
+        shopTerm: "women's pointed heels",
+        reasoning: ["A tailored power-suit look pairs best with sleek, pointed-toe heels or pumps."],
       };
     case "casual-day":
     default:

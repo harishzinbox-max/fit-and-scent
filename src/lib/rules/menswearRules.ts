@@ -68,7 +68,10 @@ const OCCASION_CATEGORY: Record<Occasion, string> = {
   festival: "a kurta or ethnic set in breathable fabric",
   "casual-day": "a relaxed shirt or tee with well-fitted trousers",
   "formal-evening": "a suit or bandhgala for formal settings",
-    "indian-wedding": "a sherwani or bandhgala with traditional groom detailing",
+  "indian-wedding": "a sherwani or bandhgala with traditional groom detailing",
+  "indian-traditional": "a traditional kurta or ethnic set, styled by region",
+  hawaiian: "a bright Hawaiian print shirt with linen shorts",
+  "formal-suit-tie": "a tailored suit with a dress shirt, tie, and blazer",
 };
 
 const AGE_STYLE_NOTE: Record<AgeGroup, string> = {

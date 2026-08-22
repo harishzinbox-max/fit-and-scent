@@ -11,6 +11,7 @@ import { recommendFragrance } from "@/lib/rules/fragranceRules";
 import { checkAppropriateness, wearLabel, type WearPreference } from "@/lib/rules/appropriatenessCheck";
 import { checkAccessoryFit } from "@/lib/rules/accessoryRules";
 import { recommendFootwear } from "@/lib/rules/footwearRules";
+import { getStateOutfit, stateLabel } from "@/lib/rules/stateWearRules";
 import { buildShoppingLinks, buildMyntraLink, buildSalonLink } from "@/lib/affiliateLinks";
 import GeneratedLook from "./GeneratedLook";
 
@@ -28,6 +29,8 @@ const WEAR_SHOP_TERM: Record<WearPreference, string> = {
   "salwar-kameez": "salwar kameez",
     lehenga: "bridal lehenga",
   "sherwani-groom": "groom sherwani",
+  "hawaiian-sundress": "Hawaiian sundress",
+  "hawaiian-shirt-shorts": "Hawaiian shirt and shorts",
   "western-separates": "top and trousers",
   gown: "gown",
   "shirt-trouser": "shirt and trousers",
@@ -61,8 +64,16 @@ export default function RecommendationResults({ image, bodyImage, faceResult, an
   const [keepOriginalChoice, setKeepOriginalChoice] = useState(false);
   const [activeTab, setActiveTab] = useState<Tab>("outfit");
   const [hasGenerated, setHasGenerated] = useState(false);
+
+  // Indian state selection overrides the outfit description directly,
+  // taking priority over the appropriateness-based override below.
+  const stateOverride =
+    answers.occasion === "indian-traditional" && answers.indianState
+      ? getStateOutfit(answers.gender, answers.indianState)
+      : undefined;
+
   const categoryOverride =
-    appropriateness.appropriate || keepOriginalChoice ? wearLabel(wearPreference) : undefined;
+    stateOverride ?? (appropriateness.appropriate || keepOriginalChoice ? wearLabel(wearPreference) : undefined);
 
   const outfit =
     answers.gender === "male"
@@ -98,6 +109,7 @@ export default function RecommendationResults({ image, bodyImage, faceResult, an
   hairPrompt={hairPrompt}
   gender={answers.gender}
   occasion={answers.occasion}
+  facialHairPreference={answers.facialHairPreference}
   outfitSummary={outfit.silhouette}
   hairstyleSummary={hairstyle.style}
   fragranceSummary={`${fragrance.family} — ${fragrance.exampleNotes}`}
@@ -108,7 +120,7 @@ export default function RecommendationResults({ image, bodyImage, faceResult, an
         </div>
 
         <div className="results-cards">
-          {!appropriateness.appropriate && (
+          {!appropriateness.appropriate && !stateOverride && (
             <div className="preference-banner">
               {appropriateness.reasoning.map((r, i) => (
                 <p key={i} className="rec-sub">
@@ -163,6 +175,11 @@ export default function RecommendationResults({ image, bodyImage, faceResult, an
             <div className="tab-panel">
               <section className="rec-card">
                 <h3>What to wear</h3>
+                {stateOverride && (
+                  <p className="rec-confidence" style={{ marginBottom: "0.3rem" }}>
+                    {stateLabel(answers.indianState ?? "")} traditional style
+                  </p>
+                )}
                 <p className="rec-headline">{outfit.silhouette}</p>
                 <p className="rec-sub">Neckline: {outfit.neckline}</p>
                 <p className="rec-sub rec-avoid">Steer away from: {outfit.avoid}</p>

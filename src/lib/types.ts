@@ -40,6 +40,9 @@ export interface BodyAnalysisResult {
 
 export type Occasion =
   | "office"
+  | "indian-traditional"
+  | "hawaiian"
+  | "formal-suit-tie"
   | "wedding-guest"
   | "date-night"
   | "festival"
@@ -51,7 +54,9 @@ export type Season = "spring-summer" | "autumn-winter" | "year-round";
 
 export interface QuizAnswers {
   occasion: Occasion;
+  indianState?: string;
   season: Season;
+  facialHairPreference?: "none" | "moustache" | "beard" | "moustache-and-beard";
   scentFamily: "fresh" | "floral" | "woody" | "oriental" | "no-preference";
   timeOfDay: "day" | "evening";
   bodyBuild: BodyBuild;

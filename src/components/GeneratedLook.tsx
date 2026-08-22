@@ -7,7 +7,7 @@ import { saveLook } from "@/lib/wardrobeStorage";
 import { supabase } from "@/lib/supabaseClient";
 import { getCreditStatus, consumeCredit, type CreditStatus } from "@/lib/credits";
 import LoginForm from "./LoginForm";
-import type { Occasion } from "@/lib/types";
+import type { Occasion, QuizAnswers } from "@/lib/types";
 
 interface Props {
   image: HTMLImageElement;
@@ -16,6 +16,7 @@ interface Props {
   hairPrompt: string;
   gender: Gender;
   occasion: Occasion;
+  facialHairPreference?: QuizAnswers["facialHairPreference"];
   outfitSummary: string;
   hairstyleSummary: string;
   fragranceSummary: string;
@@ -35,6 +36,12 @@ const LOADING_MESSAGES = [
   "Blending it all together…",
   "Almost there…",
 ];
+
+const FACIAL_HAIR_PROMPT: Record<string, string> = {
+  moustache: "give him a well-groomed moustache above the lip only, keeping the rest of the face clean-shaven with no beard",
+  beard: "give him a full, well-groomed beard along the jaw and chin, but keep the area above the lip clean-shaven — a beard without a moustache",
+  "moustache-and-beard": "give him a full, well-groomed beard and moustache together",
+};
 
 function cropCloseup(fullBase64: string, mimeType: string): Promise<{ imageBase64: string; mimeType: string }> {
   return new Promise((resolve, reject) => {
@@ -85,6 +92,7 @@ export default function GeneratedLook({
   hairPrompt,
   gender,
   occasion,
+  facialHairPreference,
   outfitSummary,
   hairstyleSummary,
   fragranceSummary,
@@ -148,6 +156,11 @@ export default function GeneratedLook({
     try {
       const { base64, mimeType } = imageToBase64(bodyImage);
 
+      const facialHairClause =
+        gender === "male" && facialHairPreference && facialHairPreference !== "none"
+          ? ` Additionally, facial hair: ${FACIAL_HAIR_PROMPT[facialHairPreference]}.`
+          : "";
+
       const fullPrompt =
         `This is a photo editing task, not a new image generation task. The photo shows a real, specific person — ` +
         `do not replace them with a different person, a model, or a stock photo face. Their exact facial features, ` +
@@ -157,7 +170,7 @@ export default function GeneratedLook({
         `(1) clothing — change to: ${dressPrompt}; ` +
         `(2) hair — restyle to: ${hairPrompt}; ` +
         `(3) accessories — add naturally: ${accessorySummary}; ` +
-        `(4) footwear — add: ${footwearSummary}. ` +
+        `(4) footwear — add: ${footwearSummary}.${facialHairClause} ` +
         `Everything else — face, skin tone, body proportions, pose, background, lighting — must stay exactly as in ` +
         `the original photo. Full body from head to toe clearly visible. Photorealistic.`;
 
