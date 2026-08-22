@@ -40,6 +40,7 @@ const OCCASION_STYLING: Record<Occasion, string> = {
   festival: "relaxed, natural texture",
   "casual-day": "natural, unstyled texture",
   "formal-evening": "sleek and precisely combed",
+  "indian-wedding": "sharp and traditionally styled, often paired with a turban or safa",
 };
 
 export function recommendMenHairstyle(faceShape: FaceShape, occasion: Occasion): HairstyleRecommendation {

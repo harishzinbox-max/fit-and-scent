@@ -1,12 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import PhotoUpload from "@/components/PhotoUpload";
 import FaceScanner from "@/components/FaceScanner";
 import BodyScanner from "@/components/BodyScanner";
 import OccasionQuiz from "@/components/OccasionQuiz";
 import RecommendationResults from "@/components/RecommendationResults";
+import LoginForm from "@/components/LoginForm";
+import { supabase } from "@/lib/supabaseClient";
 import type { FaceAnalysisResult, BodyAnalysisResult, QuizAnswers } from "@/lib/types";
 
 type Stage = "upload" | "scanning" | "body-upload" | "body-scanning" | "quiz" | "results";
@@ -19,6 +21,19 @@ export default function Home() {
   const [bodyImage, setBodyImage] = useState<HTMLImageElement | null>(null);
   const [bodyResult, setBodyResult] = useState<BodyAnalysisResult | null>(null);
   const [answers, setAnswers] = useState<QuizAnswers | null>(null);
+
+  // undefined = still checking session, null = signed out, string = signed in (email)
+  const [userEmail, setUserEmail] = useState<string | null | undefined>(undefined);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      setUserEmail(data.session?.user.email ?? null);
+    });
+    const { data } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUserEmail(session?.user.email ?? null);
+    });
+    return () => data.subscription.unsubscribe();
+  }, []);
 
   return (
     <div className="page">
@@ -39,17 +54,28 @@ export default function Home() {
 
       <main className="page-main">
         {stage === "upload" && (
-          <PhotoUpload
-            stepNumber="01"
-            title="Add a front-facing photo"
-            hint="Even lighting, face centered, no sunglasses."
-            previewAlt="Uploaded portrait"
-            guideType="face"
-            onImageReady={(img) => {
-              setImage(img);
-              setStage("scanning");
-            }}
-          />
+          userEmail === undefined ? (
+            <p className="credits-badge">Checking your account…</p>
+          ) : userEmail === null ? (
+            <div>
+              <p className="credits-badge" style={{ marginBottom: "0.9rem" }}>
+                Sign in to get started with your free AI makeover
+              </p>
+              <LoginForm />
+            </div>
+          ) : (
+            <PhotoUpload
+              stepNumber="01"
+              title="Add a front-facing photo"
+              hint="Even lighting, face centered, no sunglasses."
+              previewAlt="Uploaded portrait"
+              guideType="face"
+              onImageReady={(img) => {
+                setImage(img);
+                setStage("scanning");
+              }}
+            />
+          )
         )}
 
         {stage === "scanning" && image && (

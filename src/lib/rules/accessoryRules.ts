@@ -34,6 +34,7 @@ const WOMEN_ACCESSORIES: Record<Occasion, { items: string[]; why: string }> = {
   festival: { items: ["oxidized jewelry", "bindis", "juttis"], why: "traditional accents suit festival settings" },
   "casual-day": { items: ["sunglasses", "crossbody bag", "simple studs"], why: "practical pieces for an everyday look" },
   "formal-evening": { items: ["statement necklace", "evening clutch", "heels"], why: "formal settings support more elevated, dressed-up pieces" },
+  "indian-wedding": { items: ["kundan or polki jewelry set", "maang tikka", "bridal clutch"], why: "traditional bridal wear is paired with statement kundan/polki jewelry and a maang tikka" },
 };
 
 const MEN_ACCESSORIES: Record<Occasion, { items: string[]; why: string }> = {
@@ -43,6 +44,7 @@ const MEN_ACCESSORIES: Record<Occasion, { items: string[]; why: string }> = {
   festival: { items: ["sunglasses", "statement watch"], why: "casual accents suit festival settings" },
   "casual-day": { items: ["sunglasses", "canvas bag", "cap"], why: "practical pieces for an everyday look" },
   "formal-evening": { items: ["formal watch", "cufflinks", "tie pin"], why: "formal settings support more polished accessories" },
+  "indian-wedding": { items: ["safa or turban", "kalgi brooch"], why: "a groom's traditional look is completed with a safa (turban) and a kalgi brooch" },
 };
 
 export function recommendAccessories(gender: Gender, occasion: Occasion): AccessoryRecommendation {
@@ -98,6 +100,7 @@ const WOMEN_ACCESSORY_RECOMMEND: Record<Occasion, string[]> = {
   festival: ["bangles", "earrings"],
   "casual-day": ["sunglasses", "watch"],
   "formal-evening": ["necklace", "clutch"],
+  "indian-wedding": ["necklace", "earrings", "bangles"],
 };
 
 const MEN_ACCESSORY_RECOMMEND: Record<Occasion, string[]> = {
@@ -107,6 +110,7 @@ const MEN_ACCESSORY_RECOMMEND: Record<Occasion, string[]> = {
   festival: ["sunglasses", "watch"],
   "casual-day": ["cap", "sunglasses"],
   "formal-evening": ["watch"],
+  "indian-wedding": ["watch"],
 };
 
 export function recommendAccessoryValues(gender: Gender, occasion: Occasion): string[] {

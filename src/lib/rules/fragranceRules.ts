@@ -7,6 +7,7 @@ const OCCASION_INTENSITY: Record<Occasion, string> = {
   festival: "light and fresh — layered with heat and crowds in mind",
   "casual-day": "light, easy sillage for everyday wear",
   "formal-evening": "strong, rich sillage that holds up after dark",
+  "indian-wedding": "strong, rich, and long-lasting — traditional celebrations run long and call for real staying power",
 };
 
 const SEASON_FAMILY_BIAS: Record<Season, string[]> = {

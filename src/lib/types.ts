@@ -44,6 +44,7 @@ export type Occasion =
   | "date-night"
   | "festival"
   | "casual-day"
+  | "indian-wedding"
   | "formal-evening";
 
 export type Season = "spring-summer" | "autumn-winter" | "year-round";

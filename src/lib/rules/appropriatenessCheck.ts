@@ -1,7 +1,7 @@
 import type { Occasion, Gender } from "../types";
 
-export type WomenswearPreference = "dress" | "saree" | "salwar-kameez" | "western-separates" | "gown";
-export type MenswearPreference = "shirt-trouser" | "kurta" | "suit" | "ethnic-set" | "casual-tee-jeans";
+export type WomenswearPreference = "dress" | "saree" | "salwar-kameez" | "western-separates" | "gown" | "lehenga";
+export type MenswearPreference = "shirt-trouser" | "kurta" | "suit" | "ethnic-set" | "casual-tee-jeans" | "sherwani-groom";
 export type WearPreference = WomenswearPreference | MenswearPreference;
 
 export const WOMEN_WEAR_OPTIONS: { value: WomenswearPreference; label: string }[] = [
@@ -10,6 +10,7 @@ export const WOMEN_WEAR_OPTIONS: { value: WomenswearPreference; label: string }[
   { value: "salwar-kameez", label: "Salwar kameez" },
   { value: "western-separates", label: "Western separates" },
   { value: "gown", label: "Gown" },
+  { value: "lehenga", label: "Bridal lehenga" },
 ];
 
 export const MEN_WEAR_OPTIONS: { value: MenswearPreference; label: string }[] = [
@@ -18,6 +19,7 @@ export const MEN_WEAR_OPTIONS: { value: MenswearPreference; label: string }[] = 
   { value: "suit", label: "Suit" },
   { value: "ethnic-set", label: "Ethnic set (sherwani/bandhgala)" },
   { value: "casual-tee-jeans", label: "Casual tee & jeans" },
+  { value: "sherwani-groom", label: "Groom's sherwani" },
 ];
 
 const WEAR_LABEL: Record<WearPreference, string> = {
@@ -26,11 +28,13 @@ const WEAR_LABEL: Record<WearPreference, string> = {
   "salwar-kameez": "A salwar kameez",
   "western-separates": "Western separates",
   gown: "A gown",
+  lehenga: "A bridal lehenga",
   "shirt-trouser": "A shirt and trouser set",
   kurta: "A kurta",
   suit: "A suit",
   "ethnic-set": "An ethnic set",
   "casual-tee-jeans": "Casual wear",
+  "sherwani-groom": "A groom's sherwani",
 };
 
 // Split by gender so a mismatch on one wardrobe never surfaces the other
@@ -42,6 +46,7 @@ const WOMEN_OCCASION_COMPATIBLE_WEAR: Record<Occasion, WomenswearPreference[]> =
   festival: ["saree", "salwar-kameez", "dress"],
   "casual-day": ["western-separates", "dress"],
   "formal-evening": ["gown", "saree"],
+  "indian-wedding": ["lehenga", "saree"],
 };
 
 const MEN_OCCASION_COMPATIBLE_WEAR: Record<Occasion, MenswearPreference[]> = {
@@ -51,6 +56,7 @@ const MEN_OCCASION_COMPATIBLE_WEAR: Record<Occasion, MenswearPreference[]> = {
   festival: ["kurta", "ethnic-set"],
   "casual-day": ["casual-tee-jeans", "kurta"],
   "formal-evening": ["suit", "ethnic-set"],
+  "indian-wedding": ["sherwani-groom", "ethnic-set"],
 };
 
 export interface AppropriatenessResult {

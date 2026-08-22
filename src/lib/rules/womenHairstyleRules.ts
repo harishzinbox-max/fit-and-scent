@@ -40,6 +40,7 @@ const OCCASION_STYLING: Record<Occasion, string> = {
   festival: "braids or textured waves that hold up through movement",
   "casual-day": "natural texture, minimal styling",
   "formal-evening": "a formal updo or a sleek, glossy blowout",
+  "indian-wedding": "an elaborate bridal updo or braided style with floral or jeweled accents",
 };
 
 export function recommendWomenHairstyle(faceShape: FaceShape, occasion: Occasion): HairstyleRecommendation {

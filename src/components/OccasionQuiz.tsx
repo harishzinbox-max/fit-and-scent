@@ -20,14 +20,17 @@ interface Props {
    onSubmit: (answers: QuizAnswers) => void;
 }
 
-const OCCASIONS: { value: QuizAnswers["occasion"]; label: string }[] = [
-  { value: "office", label: "Office" },
-  { value: "wedding-guest", label: "Wedding guest" },
-  { value: "date-night", label: "Date night" },
-  { value: "festival", label: "Festival" },
-  { value: "casual-day", label: "Casual day out" },
-  { value: "formal-evening", label: "Formal evening" },
-];
+function getOccasions(gender: Gender): { value: QuizAnswers["occasion"]; label: string }[] {
+  return [
+    { value: "office", label: "Office" },
+    { value: "wedding-guest", label: "Wedding guest" },
+    { value: "date-night", label: "Date night" },
+    { value: "festival", label: "Festival" },
+    { value: "casual-day", label: "Casual day out" },
+    { value: "formal-evening", label: "Formal evening" },
+    { value: "indian-wedding", label: gender === "male" ? "Indian Bridegroom" : "Indian Bride" },
+  ];
+}
 
 const BODY_BUILD_LABEL: Record<BodyBuild, string> = {
   rectangle: "Rectangle",
@@ -63,10 +66,14 @@ export default function OccasionQuiz({
   const bodyBuild = detectedBodyBuild; // auto-detected only, no manual override
   const [ageGroup, setAgeGroup] = useState<AgeGroup>("26-40");
 
+  const OCCASIONS = getOccasions(gender);
+
   const wearOptions = gender === "male" ? MEN_WEAR_OPTIONS : WOMEN_WEAR_OPTIONS;
   const [wearPreference, setWearPreference] = useState<WearPreference>(wearOptions[0].value);
   const hairOptions = gender === "male" ? MEN_HAIRSTYLE_OPTIONS : WOMEN_HAIRSTYLE_OPTIONS;
-  const [hairPreference, setHairPreference] = useState<string>(hairOptions[0].value);
+  const [hairPreference, setHairPreference] = useState<string>(() =>
+    recommendHairstyleValue(gender, faceShape)
+  );
   const accessoryOptions = gender === "male" ? MEN_ACCESSORY_OPTIONS : WOMEN_ACCESSORY_OPTIONS;
   const [accessoryPreferences, setAccessoryPreferences] = useState<string[]>([]);
 
@@ -82,8 +89,7 @@ export default function OccasionQuiz({
     setGender(next);
     const nextOptions = next === "male" ? MEN_WEAR_OPTIONS : WOMEN_WEAR_OPTIONS;
     setWearPreference(nextOptions[0].value);
-    const nextHairOptions = next === "male" ? MEN_HAIRSTYLE_OPTIONS : WOMEN_HAIRSTYLE_OPTIONS;
-    setHairPreference(nextHairOptions[0].value);
+    setHairPreference(recommendHairstyleValue(next, faceShape));
     setAccessoryPreferences([]);
   }
 

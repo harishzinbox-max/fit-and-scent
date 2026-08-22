@@ -60,6 +60,12 @@ export function recommendFootwear(
           shopTerm: "men's formal leather shoes",
           reasoning: ["Formal evening settings call for a polished, closed leather shoe."],
         };
+      case "indian-wedding":
+        return {
+          type: "Embellished mojaris or juttis",
+          shopTerm: "men's wedding mojari juttis",
+          reasoning: ["A groom's traditional outfit is completed with embellished mojaris or juttis, not Western dress shoes."],
+        };
       case "casual-day":
       default:
         if (isWarmDaytime) {
@@ -118,6 +124,12 @@ export function recommendFootwear(
         type: "Heels",
         shopTerm: "women's heels",
         reasoning: ["Formal evening occasions call for a heel to match the elevated dress code."],
+      };
+    case "indian-wedding":
+      return {
+        type: "Embellished bridal juttis or heels",
+        shopTerm: "women's bridal juttis heels",
+        reasoning: ["Traditional bridal wear pairs best with embellished juttis or heels in gold or matching tones."],
       };
     case "casual-day":
     default:
