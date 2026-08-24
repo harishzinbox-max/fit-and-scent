@@ -158,6 +158,9 @@ export default function Home() {
 
       <footer className="page-footer">
         <p>Face-shape, skin-tone, and body-build reading happens on your device. Nothing is uploaded to a server.</p>
+        <p style={{ marginTop: "0.5rem" }}>
+          Own a clothing store? <Link href="/partner">Partner with us</Link>
+        </p>
       </footer>
     </div>
   );
