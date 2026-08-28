@@ -30,35 +30,48 @@ export default function PartnerLoginPage() {
       return;
     }
 
-    supabase.auth.getUser().then(async ({ data: { user } }) => {
-      if (!user) {
-        setStoreName(null);
-        return;
-      }
-      const { data: ownerRow } = await supabase
-        .from("store_owners")
-        .select("store_id")
-        .eq("user_id", user.id)
-        .maybeSingle();
+    console.log("[partner-debug] Starting store check for:", userEmail);
 
-      if (!ownerRow) {
-        setStoreName(null);
-        return;
-      }
+    supabase.auth
+      .getUser()
+      .then(async ({ data: { user }, error: userErr }) => {
+        console.log("[partner-debug] getUser result:", user, userErr);
+        if (!user) {
+          setStoreName(null);
+          return;
+        }
+        const { data: ownerRow, error: ownerErr } = await supabase
+          .from("store_owners")
+          .select("store_id")
+          .eq("user_id", user.id)
+          .maybeSingle();
 
-      const { data: store } = await supabase
-        .from("stores")
-        .select("name, slug")
-        .eq("id", ownerRow.store_id)
-        .maybeSingle();
+        console.log("[partner-debug] ownerRow result:", ownerRow, ownerErr);
 
-      if (store) {
-        setStoreName(store.name);
-        setStoreSlug(store.slug);
-      } else {
+        if (!ownerRow) {
+          setStoreName(null);
+          return;
+        }
+
+        const { data: store, error: storeErr } = await supabase
+          .from("stores")
+          .select("name, slug")
+          .eq("id", ownerRow.store_id)
+          .maybeSingle();
+
+        console.log("[partner-debug] store result:", store, storeErr);
+
+        if (store) {
+          setStoreName(store.name);
+          setStoreSlug(store.slug);
+        } else {
+          setStoreName(null);
+        }
+      })
+      .catch((err) => {
+        console.error("[partner-debug] CAUGHT ERROR in store check:", err);
         setStoreName(null);
-      }
-    });
+      });
   }, [userEmail]);
 
   async function handleSendLink(e: React.FormEvent) {
