@@ -69,6 +69,7 @@ body: JSON.stringify({
     if (!imagePart) {
       const textPart = parts.find((p: { text?: string }) => p.text)?.text;
       const finishReason = data?.candidates?.[0]?.finishReason;
+      console.error("Gemini returned no image. finishReason:", finishReason, "text:", textPart);
       return NextResponse.json(
         {
           error: "Gemini didn't return an image. Try a different, clearer photo.",

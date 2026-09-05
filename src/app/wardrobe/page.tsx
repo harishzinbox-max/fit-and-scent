@@ -48,18 +48,27 @@ async function handleDelete(id: string) {
           <div className="results-cards">
             {looks.map((look) => (
               <div key={look.id} className="rec-card">
-                <img
-                  src={`data:${look.mimeType};base64,${look.imageBase64}`}
+                                <img
+                  src={look.imageUrl ?? `data:${look.mimeType};base64,${look.imageBase64}`}
                   alt="Saved look"
                   className="result-photo"
                 />
-                <p className="rec-headline">{look.outfitSummary}</p>
-                <p className="rec-sub">Hair: {look.hairstyleSummary}</p>
-                <p className="rec-sub">Scent: {look.fragranceSummary}</p>
-                <p className="rec-sub">Accessories: {look.accessorySummary}</p>
-                <p className="rec-confidence">
-                  {look.occasion.replace("-", " ")} · saved {new Date(look.createdAt).toLocaleDateString()}
-                </p>
+                {look.source === "custom-outfit" ? (
+                  <>
+                    <p className="rec-headline">{look.garmentLabel ?? "Your own outfit"}</p>
+                    <p className="rec-confidence">saved {new Date(look.createdAt).toLocaleDateString()}</p>
+                  </>
+                ) : (
+                  <>
+                    <p className="rec-headline">{look.outfitSummary}</p>
+                    <p className="rec-sub">Hair: {look.hairstyleSummary}</p>
+                    <p className="rec-sub">Scent: {look.fragranceSummary}</p>
+                    <p className="rec-sub">Accessories: {look.accessorySummary}</p>
+                    <p className="rec-confidence">
+                      {look.occasion?.replace("-", " ")} · saved {new Date(look.createdAt).toLocaleDateString()}
+                    </p>
+                  </>
+                )}
                 <button
                   type="button"
                   className="chip"
