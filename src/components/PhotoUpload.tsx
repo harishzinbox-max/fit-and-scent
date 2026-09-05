@@ -9,6 +9,7 @@ interface Props {
   hint?: string;
   previewAlt?: string;
   guideType?: "face" | "body";
+  confirmLabel?: string;
 }
 
 const FRAME_ASPECT: Record<"face" | "body", number> = {
@@ -43,6 +44,7 @@ export default function PhotoUpload({
   hint = "Even lighting, face centered, no sunglasses.",
   previewAlt = "Uploaded photo",
   guideType,
+  confirmLabel = "Looks good, continue →",
 }: Props) {
   const [preview, setPreview] = useState<string | null>(null);
   const [rawImage, setRawImage] = useState<HTMLImageElement | null>(null);
@@ -206,6 +208,7 @@ export default function PhotoUpload({
             onClick={handleConfirm}
           >
             Looks good, continue →
+            {confirmLabel}
           </button>
         </div>
       ) : (

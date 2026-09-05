@@ -1,5 +1,7 @@
 import { supabase } from "./supabaseClient";
 
+export const UNLIMITED_EMAILS = ["harishzinbox@gmail.com"];
+
 export interface CreditStatus {
   freeTryUsed: boolean;
   purchasedCredits: number;

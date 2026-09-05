@@ -5,7 +5,7 @@ import type { Gender } from "@/lib/types";
 import { imageToBase64 } from "@/lib/imageToBase64";
 import { saveLook } from "@/lib/wardrobeStorage";
 import { supabase } from "@/lib/supabaseClient";
-import { getCreditStatus, consumeCredit, type CreditStatus } from "@/lib/credits";
+import { getCreditStatus, consumeCredit, UNLIMITED_EMAILS, type CreditStatus } from "@/lib/credits";
 import LoginForm from "./LoginForm";
 import type { Occasion, QuizAnswers } from "@/lib/types";
 
@@ -27,7 +27,7 @@ interface Props {
 
 type Status = "idle" | "generating" | "done" | "error";
 
-const UNLIMITED_EMAILS = ["harishzinbox@gmail.com"];
+
 
 const LOADING_MESSAGES = [
   "Reading your photo…",

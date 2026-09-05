@@ -59,7 +59,7 @@ export interface QuizAnswers {
   facialHairPreference?: "none" | "moustache" | "beard" | "moustache-and-beard";
   scentFamily: "fresh" | "floral" | "woody" | "oriental" | "no-preference";
   timeOfDay: "day" | "evening";
-  bodyBuild: BodyBuild;
+  bodyBuild: BodyBuild; 
   gender: Gender;
   ageGroup: AgeGroup;
   wearPreference: string;
@@ -87,14 +87,17 @@ export interface FragranceRecommendation {
 export interface SavedLook {
   id: string;
   createdAt: number;
- imageBase64: string;
-  mimeType: string;
- occasion: Occasion;
-  gender: Gender;
-  outfitSummary: string;
-  hairstyleSummary: string;
-  fragranceSummary: string;
-  accessorySummary: string;
+  imageBase64?: string;
+  mimeType?: string;
+  imageUrl?: string;
+  source?: "styled" | "custom-outfit";
+ occasion?: Occasion;
+  gender?: Gender;
+  outfitSummary?: string;
+  hairstyleSummary?: string;
+  fragranceSummary?: string;
+  accessorySummary?: string;
+  garmentLabel?: string;
 }
 export interface ShoppingLink {
  label: string;

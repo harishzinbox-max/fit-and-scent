@@ -7,11 +7,20 @@ import FaceScanner from "@/components/FaceScanner";
 import BodyScanner from "@/components/BodyScanner";
 import OccasionQuiz from "@/components/OccasionQuiz";
 import RecommendationResults from "@/components/RecommendationResults";
+import CustomOutfitTryOn from "@/components/CustomOutfitTryOn";
 import LoginForm from "@/components/LoginForm";
 import { supabase } from "@/lib/supabaseClient";
 import type { FaceAnalysisResult, BodyAnalysisResult, QuizAnswers } from "@/lib/types";
 
-type Stage = "upload" | "scanning" | "body-upload" | "body-scanning" | "quiz" | "results";
+type Stage =
+  | "upload"
+  | "scanning"
+  | "body-upload"
+  | "body-scanning"
+  | "outfit-choice"
+  | "quiz"
+  | "custom-tryon"
+  | "results";
 
 export default function Home() {
   const [stage, setStage] = useState<Stage>("upload");
@@ -118,9 +127,45 @@ export default function Home() {
             image={bodyImage}
             onResult={(result) => {
               setBodyResult(result);
-              setStage("quiz");
+              setStage("outfit-choice");
             }}
           />
+        )}
+
+        {stage === "outfit-choice" && (
+          <div>
+            <h2 className="quiz-title">What would you like to do?</h2>
+            <button
+              type="button"
+             className="quiz-submit"
+             style={{ width: "100%", marginTop: "0.75rem" }}
+             onClick={() => setStage("quiz")}
+          >
+              Get a styled look
+            </button>
+            <button
+              type="button"
+              className="quiz-submit"
+              style={{ width: "100%", marginTop: "0.6rem" }}
+              onClick={() => setStage("custom-tryon")}
+            >
+              Try an outfit of your choice
+            </button>
+          </div>
+        )}
+
+        {stage === "custom-tryon" && bodyImage && (
+          <>
+            <button
+              type="button"
+              className="chip"
+              style={{ marginBottom: "1rem" }}
+              onClick={() => setStage("outfit-choice")}
+            >
+              ← Back
+            </button>
+            <CustomOutfitTryOn bodyImage={bodyImage} />
+          </>
         )}
 
         {stage === "quiz" && bodyResult && (
