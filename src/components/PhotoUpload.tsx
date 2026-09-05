@@ -207,7 +207,7 @@ export default function PhotoUpload({
             disabled={!rawImage}
             onClick={handleConfirm}
           >
-            Looks good, continue →
+            
             {confirmLabel}
           </button>
         </div>
