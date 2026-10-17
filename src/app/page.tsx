@@ -10,7 +10,11 @@ import RecommendationResults from "@/components/RecommendationResults";
 import CustomOutfitTryOn from "@/components/CustomOutfitTryOn";
 import LoginForm from "@/components/LoginForm";
 import { supabase } from "@/lib/supabaseClient";
-import type { FaceAnalysisResult, BodyAnalysisResult, QuizAnswers } from "@/lib/types";
+import type {
+  FaceAnalysisResult,
+  BodyAnalysisResult,
+  QuizAnswers,
+} from "@/lib/types";
 
 type Stage =
   | "upload"
@@ -31,16 +35,22 @@ export default function Home() {
   const [bodyResult, setBodyResult] = useState<BodyAnalysisResult | null>(null);
   const [answers, setAnswers] = useState<QuizAnswers | null>(null);
 
-  // undefined = still checking session, null = signed out, string = signed in (email)
-  const [userEmail, setUserEmail] = useState<string | null | undefined>(undefined);
+  // undefined = checking session
+  // null = signed out
+  // string = signed in
+  const [userEmail, setUserEmail] = useState<string | null | undefined>(
+    undefined
+  );
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
       setUserEmail(data.session?.user.email ?? null);
     });
+
     const { data } = supabase.auth.onAuthStateChange((_event, session) => {
       setUserEmail(session?.user.email ?? null);
     });
+
     return () => data.subscription.unsubscribe();
   }, []);
 
@@ -54,47 +64,297 @@ export default function Home() {
     setStage("upload");
   }
 
+  function scrollToStart() {
+    document
+      .getElementById("get-started")
+      ?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+
   return (
     <div className="page">
       <header className="page-header">
         <span className="brand-mark">Fit&nbsp;&amp;&nbsp;Scent</span>
-        <p className="brand-tag">A stylist that shows its work — not just a filter.</p>
-        <Link href="/wardrobe" className="chip" style={{ display: "inline-block", marginTop: "0.5rem" }}>
-         My wardrobe
-         </Link>
-         
-<Link href="/how-it-works" className="chip" style={{ display: "inline-block", marginTop: "0.5rem", marginLeft: "0.5rem" }}>
- How it works
- </Link>
- <Link href="/guides" className="chip" style={{ display: "inline-block", marginTop: "0.5rem", marginLeft: "0.5rem" }}>
- Guides
- </Link>
+
+        <nav
+          style={{
+            marginTop: "0.8rem",
+            display: "flex",
+            flexWrap: "wrap",
+            gap: "0.5rem",
+          }}
+        >
+          <Link href="/wardrobe" className="chip">
+            My wardrobe
+          </Link>
+
+          <Link href="/how-it-works" className="chip">
+            How it works
+          </Link>
+
+          <Link href="/guides" className="chip">
+            Guides
+          </Link>
+        </nav>
       </header>
 
       <main className="page-main">
         {stage === "upload" && (
-          userEmail === undefined ? (
-            <p className="credits-badge">Checking your account…</p>
-          ) : userEmail === null ? (
-            <div>
-              <p className="credits-badge" style={{ marginBottom: "0.9rem" }}>
-                Sign in to get started with your free AI makeover
-              </p>
-              <LoginForm />
-            </div>
-          ) : (
-            <PhotoUpload
-              stepNumber="01"
-              title="Add a front-facing photo"
-              hint="Even lighting, face centered, no sunglasses."
-              previewAlt="Uploaded portrait"
-              guideType="face"
-              onImageReady={(img) => {
-                setImage(img);
-                setStage("scanning");
+          <>
+            {/* HERO */}
+            <section
+              style={{
+                textAlign: "center",
+                maxWidth: "720px",
+                margin: "0 auto 2rem",
+                padding: "1rem 0 0.5rem",
               }}
-            />
-          )
+            >
+              <p
+                style={{
+                  fontSize: "0.8rem",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.12em",
+                  marginBottom: "0.7rem",
+                  opacity: 0.7,
+                }}
+              >
+                Personal AI stylist
+              </p>
+
+              <h1
+                style={{
+                  fontSize: "clamp(2rem, 5vw, 3.5rem)",
+                  lineHeight: 1.05,
+                  marginBottom: "1rem",
+                }}
+              >
+                Find the look that actually suits you
+              </h1>
+
+              <p
+                style={{
+                  fontSize: "1.1rem",
+                  lineHeight: 1.6,
+                  maxWidth: "640px",
+                  margin: "0 auto 1.4rem",
+                  opacity: 0.82,
+                }}
+              >
+                Get personalized outfits, hairstyles, accessories and
+                fragrances based on your face, body build and skin tone —
+                then see the recommended look on yourself.
+              </p>
+
+              <button
+                type="button"
+                className="quiz-submit"
+                onClick={scrollToStart}
+                style={{
+                  padding: "0.9rem 1.5rem",
+                  fontSize: "1rem",
+                  minWidth: "220px",
+                }}
+              >
+                Create My Look — Free
+              </button>
+
+              <p
+                style={{
+                  marginTop: "0.75rem",
+                  fontSize: "0.85rem",
+                  opacity: 0.7,
+                }}
+              >
+                1 free try • No credit card • Photos analysed privately
+              </p>
+            </section>
+
+            {/* VALUE PREVIEW */}
+            <section
+              style={{
+                display: "grid",
+                gridTemplateColumns:
+                  "repeat(auto-fit, minmax(150px, 1fr))",
+                gap: "0.75rem",
+                maxWidth: "720px",
+                margin: "0 auto 2.2rem",
+              }}
+            >
+              <div
+                style={{
+                  border: "1px solid rgba(0,0,0,0.1)",
+                  borderRadius: "14px",
+                  padding: "1rem",
+                  textAlign: "center",
+                }}
+              >
+                <div style={{ fontSize: "1.4rem", marginBottom: "0.35rem" }}>
+                  01
+                </div>
+                <strong>We analyse you</strong>
+                <p
+                  style={{
+                    fontSize: "0.85rem",
+                    marginTop: "0.35rem",
+                    opacity: 0.7,
+                  }}
+                >
+                  Face shape, skin tone and body build
+                </p>
+              </div>
+
+              <div
+                style={{
+                  border: "1px solid rgba(0,0,0,0.1)",
+                  borderRadius: "14px",
+                  padding: "1rem",
+                  textAlign: "center",
+                }}
+              >
+                <div style={{ fontSize: "1.4rem", marginBottom: "0.35rem" }}>
+                  02
+                </div>
+                <strong>We style you</strong>
+                <p
+                  style={{
+                    fontSize: "0.85rem",
+                    marginTop: "0.35rem",
+                    opacity: 0.7,
+                  }}
+                >
+                  Outfit, hair, accessories and fragrance
+                </p>
+              </div>
+
+              <div
+                style={{
+                  border: "1px solid rgba(0,0,0,0.1)",
+                  borderRadius: "14px",
+                  padding: "1rem",
+                  textAlign: "center",
+                }}
+              >
+                <div style={{ fontSize: "1.4rem", marginBottom: "0.35rem" }}>
+                  03
+                </div>
+                <strong>See it on yourself</strong>
+                <p
+                  style={{
+                    fontSize: "0.85rem",
+                    marginTop: "0.35rem",
+                    opacity: 0.7,
+                  }}
+                >
+                  Preview the recommended look before deciding
+                </p>
+              </div>
+            </section>
+
+            {/* TRUST MESSAGE */}
+            <section
+              style={{
+                maxWidth: "620px",
+                margin: "0 auto 1.5rem",
+                padding: "0.9rem 1rem",
+                borderRadius: "12px",
+                textAlign: "center",
+                background: "rgba(255,255,255,0.5)",
+                border: "1px solid rgba(0,0,0,0.08)",
+              }}
+            >
+              <strong>Designed around you — not generic filters.</strong>
+
+              <p
+                style={{
+                  marginTop: "0.4rem",
+                  fontSize: "0.9rem",
+                  lineHeight: 1.5,
+                  opacity: 0.72,
+                }}
+              >
+                Your face-shape, skin-tone and body-build analysis happens on
+                your device. Your photos are not uploaded to our server for
+                analysis.
+              </p>
+            </section>
+
+            {/* ACTUAL START OF PRODUCT FLOW */}
+            <section
+              id="get-started"
+              style={{
+                scrollMarginTop: "2rem",
+                maxWidth: "620px",
+                margin: "0 auto",
+              }}
+            >
+              {userEmail === undefined ? (
+                <p
+                  className="credits-badge"
+                  style={{ textAlign: "center" }}
+                >
+                  Checking your account…
+                </p>
+              ) : userEmail === null ? (
+                <div>
+                  <h2
+                    style={{
+                      textAlign: "center",
+                      marginBottom: "0.5rem",
+                    }}
+                  >
+                    Ready to see what suits you?
+                  </h2>
+
+                  <p
+                    className="credits-badge"
+                    style={{
+                      marginBottom: "0.9rem",
+                      textAlign: "center",
+                    }}
+                  >
+                    Sign in to start your free personalized styling session
+                  </p>
+
+                  <LoginForm />
+                </div>
+              ) : (
+                <>
+                  <h2
+                    style={{
+                      textAlign: "center",
+                      marginBottom: "0.4rem",
+                    }}
+                  >
+                    Start with a photo
+                  </h2>
+
+                  <p
+                    style={{
+                      textAlign: "center",
+                      marginBottom: "1rem",
+                      fontSize: "0.9rem",
+                      opacity: 0.7,
+                    }}
+                  >
+                    This helps Fit & Scent understand your features before
+                    creating your recommendations.
+                  </p>
+
+                  <PhotoUpload
+                    stepNumber="01"
+                    title="Add a front-facing photo"
+                    hint="Even lighting, face centered, no sunglasses."
+                    previewAlt="Uploaded portrait"
+                    guideType="face"
+                    onImageReady={(img) => {
+                      setImage(img);
+                      setStage("scanning");
+                    }}
+                  />
+                </>
+              )}
+            </section>
+          </>
         )}
 
         {stage === "scanning" && image && (
@@ -135,14 +395,16 @@ export default function Home() {
         {stage === "outfit-choice" && (
           <div>
             <h2 className="quiz-title">What would you like to do?</h2>
+
             <button
               type="button"
-             className="quiz-submit"
-             style={{ width: "100%", marginTop: "0.75rem" }}
-             onClick={() => setStage("quiz")}
-          >
+              className="quiz-submit"
+              style={{ width: "100%", marginTop: "0.75rem" }}
+              onClick={() => setStage("quiz")}
+            >
               Get a styled look
             </button>
+
             <button
               type="button"
               className="quiz-submit"
@@ -164,6 +426,7 @@ export default function Home() {
             >
               ← Back
             </button>
+
             <CustomOutfitTryOn bodyImage={bodyImage} />
           </>
         )}
@@ -180,29 +443,38 @@ export default function Home() {
           />
         )}
 
-{stage === "results" && image && faceResult && answers && bodyImage && (
-  <>
-    <button
-      type="button"
-      className="chip"
-      style={{ marginBottom: "1rem" }}
-      onClick={resetToUpload}
-    >
-      ← Back to My Stylist
-    </button>
-    <RecommendationResults
-      image={image}
-      bodyImage={bodyImage}
-      landmarks={landmarks}
-      faceResult={faceResult}
-      answers={answers}
-    />
-  </>
-)}
+        {stage === "results" &&
+          image &&
+          faceResult &&
+          answers &&
+          bodyImage && (
+            <>
+              <button
+                type="button"
+                className="chip"
+                style={{ marginBottom: "1rem" }}
+                onClick={resetToUpload}
+              >
+                ← Back to My Stylist
+              </button>
+
+              <RecommendationResults
+                image={image}
+                bodyImage={bodyImage}
+                landmarks={landmarks}
+                faceResult={faceResult}
+                answers={answers}
+              />
+            </>
+          )}
       </main>
 
       <footer className="page-footer">
-        <p>Face-shape, skin-tone, and body-build reading happens on your device. Nothing is uploaded to a server.</p>
+        <p>
+          Face-shape, skin-tone, and body-build reading happens on your device.
+          Nothing is uploaded to a server for analysis.
+        </p>
+
         <p style={{ marginTop: "0.5rem" }}>
           Own a clothing store? <Link href="/partner">Partner with us</Link>
         </p>
