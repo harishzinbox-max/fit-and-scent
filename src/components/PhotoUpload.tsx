@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { trackEvent } from "@/lib/analytics";
 
 interface Props {
   onImageReady: (imageEl: HTMLImageElement) => void;
@@ -119,7 +120,9 @@ export default function PhotoUpload({
 
   function handleFile(file: File) {
     const url = URL.createObjectURL(file);
-
+    trackEvent(
+  guideType === "body" ? "body_upload" : "photo_upload"
+);
     setPreview(url);
     setRawImage(null);
     setZoom(1);

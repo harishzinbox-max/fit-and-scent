@@ -9,6 +9,7 @@ import OccasionQuiz from "@/components/OccasionQuiz";
 import RecommendationResults from "@/components/RecommendationResults";
 import CustomOutfitTryOn from "@/components/CustomOutfitTryOn";
 import LoginForm from "@/components/LoginForm";
+import { trackEvent } from "@/lib/analytics";
 import { supabase } from "@/lib/supabaseClient";
 import type {
   FaceAnalysisResult,
@@ -361,6 +362,7 @@ export default function Home() {
           <FaceScanner
             image={image}
             onResult={(result, lm) => {
+              trackEvent("face_analysis_complete");
               setFaceResult(result);
               setLandmarks(lm);
               setStage("body-upload");
@@ -386,6 +388,7 @@ export default function Home() {
           <BodyScanner
             image={bodyImage}
             onResult={(result) => {
+              trackEvent("body_analysis_complete");
               setBodyResult(result);
               setStage("outfit-choice");
             }}
@@ -400,7 +403,8 @@ export default function Home() {
               type="button"
               className="quiz-submit"
               style={{ width: "100%", marginTop: "0.75rem" }}
-              onClick={() => setStage("quiz")}
+              onClick={() => {
+                trackEvent("styling_started");setStage("quiz")}}
             >
               Get a styled look
             </button>
@@ -409,7 +413,10 @@ export default function Home() {
               type="button"
               className="quiz-submit"
               style={{ width: "100%", marginTop: "0.6rem" }}
-              onClick={() => setStage("custom-tryon")}
+              onClick={() => {
+  trackEvent("tryon_started");
+  setStage("custom-tryon");
+              }}
             >
               Try an outfit of your choice
             </button>
@@ -437,6 +444,7 @@ export default function Home() {
             detectedBodyBuild={bodyResult.build}
             detectedConfidence={bodyResult.confidence}
             onSubmit={(a) => {
+              trackEvent("styling_completed");
               setAnswers(a);
               setStage("results");
             }}
