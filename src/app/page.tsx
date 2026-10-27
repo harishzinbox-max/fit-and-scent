@@ -149,7 +149,10 @@ export default function Home() {
               <button
                 type="button"
                 className="quiz-submit"
-                onClick={scrollToStart}
+                onClick={() => {
+  trackEvent("styling_cta_clicked");
+  scrollToStart();
+}}
                 style={{
                   padding: "0.9rem 1.5rem",
                   fontSize: "1rem",
