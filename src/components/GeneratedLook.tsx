@@ -161,19 +161,38 @@ export default function GeneratedLook({
           ? ` Additionally, facial hair: ${FACIAL_HAIR_PROMPT[facialHairPreference]}.`
           : "";
 
-      const fullPrompt =
-        `This is a photo editing task, not a new image generation task. The photo shows a real, specific person — ` +
-        `do not replace them with a different person, a model, or a stock photo face. Their exact facial features, ` +
-        `bone structure, skin tone, and identity must remain completely unchanged and clearly recognizable as the ` +
-        `same individual from the original photo. ` +
-        `The only changes to make: ` +
-        `(1) clothing — change to: ${dressPrompt}; ` +
-        `(2) hair — restyle to: ${hairPrompt}; ` +
-        `(3) accessories — add naturally: ${accessorySummary}; ` +
-        `(4) footwear — add: ${footwearSummary}.${facialHairClause} ` +
-        `Everything else — face, skin tone, body proportions, pose, background, lighting — must stay exactly as in ` +
-        `the original photo. Full body from head to toe clearly visible. Photorealistic.`;
+const fullPrompt = `
+Edit the supplied photograph.
 
+This is a photo-editing task, not a request to create
+a new photograph or a different person.
+
+Change ONLY the clothing.
+
+OCCASION:
+${occasion}
+
+REQUIRED CLOTHING:
+${dressPrompt}
+
+The selected clothing must be appropriate for the occasion.
+Do not change the clothing category or replace the person.
+
+STRICT REQUIREMENTS:
+- Preserve the exact same person's face and identity.
+- Preserve the original hairstyle and facial hair.
+- Preserve the original skin tone and body proportions.
+- Preserve the original pose and hand positions.
+- Preserve the original background and lighting.
+- Do not substitute another person or model.
+- Do not change the person's age or facial appearance.
+- Replace only the garments specified above.
+- Keep the full body visible from head to toe.
+- Produce a natural, photorealistic edit.
+
+If clothing boundaries require small adjustments,
+make only those necessary changes.
+`;
       const res = await fetch("/api/generate-look", {
         method: "POST",
         headers: { "Content-Type": "application/json" },

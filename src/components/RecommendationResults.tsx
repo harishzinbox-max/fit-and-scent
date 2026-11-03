@@ -81,7 +81,21 @@ export default function RecommendationResults({ image, bodyImage, faceResult, an
       : recommendDress(faceResult.shape, answers.bodyBuild, answers.occasion, answers.ageGroup, categoryOverride);
 
   const fragrance = recommendFragrance(answers);
-  const dressPrompt = `${outfit.silhouette}, with a ${outfit.neckline}`;
+  
+const dressPrompt =
+  answers.gender === "male" &&
+  answers.occasion === "date-night" &&
+  wearPreference === "shirt-trouser"
+    ? `Replace the existing blazer and clothing with:
+       one solid cream, long-sleeved, collared button-down shirt,
+       neatly tucked into charcoal-grey tailored straight-leg trousers.
+       The shirt must have a conventional spread collar.
+       No blazer, no jacket, no tie.
+       Preserve the person's existing shoes, watch,
+       hairstyle, face, and other personal features.
+       Do not add a cap, sunglasses, or other accessories.`
+    : `${outfit.silhouette}, with a ${outfit.neckline}`;
+
 
   const hairstyle =
     answers.gender === "male"

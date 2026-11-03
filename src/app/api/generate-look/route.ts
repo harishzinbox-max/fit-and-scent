@@ -79,7 +79,7 @@ body: JSON.stringify({
         { status: 502 }
       );
     }
-    console.log("DEBUG parts:", JSON.stringify(parts));
+
     return NextResponse.json({
       imageBase64: imagePart.inlineData.data,
       mimeType: imagePart.inlineData.mimeType ?? "image/png",

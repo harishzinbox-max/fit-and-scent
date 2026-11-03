@@ -119,10 +119,11 @@ export default function PhotoUpload({
   }
 
   function handleFile(file: File) {
-    const url = URL.createObjectURL(file);
     trackEvent(
   guideType === "body" ? "body_upload" : "photo_upload"
 );
+    const url = URL.createObjectURL(file);
+    
     setPreview(url);
     setRawImage(null);
     setZoom(1);
