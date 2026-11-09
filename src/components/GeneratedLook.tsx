@@ -8,12 +8,18 @@ import { supabase } from "@/lib/supabaseClient";
 import { getCreditStatus, consumeCredit, UNLIMITED_EMAILS, type CreditStatus } from "@/lib/credits";
 import LoginForm from "./LoginForm";
 import type { Occasion, QuizAnswers } from "@/lib/types";
+import { buildImageEditSpec } from "@/lib/imageEdit/buildImageEditSpec";
+import {
+  buildClothingEditPrompt,
+  buildHairEditPrompt,
+} from "@/lib/imageEdit/buildGeminiPrompt";
 
 interface Props {
   image: HTMLImageElement;
   bodyImage: HTMLImageElement;
   dressPrompt: string;
   hairPrompt: string;
+  wearPreference?: string;
   gender: Gender;
   occasion: Occasion;
   facialHairPreference?: QuizAnswers["facialHairPreference"];
@@ -37,11 +43,37 @@ const LOADING_MESSAGES = [
   "Almost there…",
 ];
 
-const FACIAL_HAIR_PROMPT: Record<string, string> = {
-  moustache: "give him a well-groomed moustache above the lip only, keeping the rest of the face clean-shaven with no beard",
-  beard: "give him a full, well-groomed beard along the jaw and chin, but keep the area above the lip clean-shaven — a beard without a moustache",
-  "moustache-and-beard": "give him a full, well-groomed beard and moustache together",
-};
+type ImageData = { imageBase64: string; mimeType: string };
+
+/** This endpoint edits one photo per call. Never log image data. */
+async function runGeminiEdit(
+  imageBase64: string,
+  mimeType: string,
+  prompt: string
+): Promise<ImageData> {
+  const res = await fetch("/api/generate-look", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ imageBase64, mimeType, prompt }),
+  });
+
+  const data: {
+    imageBase64?: unknown;
+    mimeType?: unknown;
+    error?: string;
+  } = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data.error || `Image generation failed (${res.status}).`);
+  }
+  if (typeof data.imageBase64 !== "string" || !data.imageBase64) {
+    throw new Error("Image generation returned no usable image.");
+  }
+  return {
+    imageBase64: data.imageBase64,
+    mimeType: typeof data.mimeType === "string" ? data.mimeType : "image/png",
+  };
+}
 
 function cropCloseup(fullBase64: string, mimeType: string): Promise<{ imageBase64: string; mimeType: string }> {
   return new Promise((resolve, reject) => {
@@ -86,13 +118,11 @@ function loadRazorpayScript(): Promise<boolean> {
 }
 
 export default function GeneratedLook({
-  image,
   bodyImage,
-  dressPrompt,
   hairPrompt,
+  wearPreference,
   gender,
   occasion,
-  facialHairPreference,
   outfitSummary,
   hairstyleSummary,
   fragranceSummary,
@@ -104,9 +134,13 @@ export default function GeneratedLook({
   const [error, setError] = useState<string | null>(null);
   const [closeupData, setCloseupData] = useState<{ imageBase64: string; mimeType: string } | null>(null);
   const [fullData, setFullData] = useState<{ imageBase64: string; mimeType: string } | null>(null);
+  // Local-only diagnostic previews. These stay in memory and are never logged.
+  const [debugClothingData, setDebugClothingData] = useState<ImageData | null>(null);
+  const [debugHairData, setDebugHairData] = useState<ImageData | null>(null);
   const [saved, setSaved] = useState(false);
   const [saving, setSaving] = useState(false);
   const [messageIndex, setMessageIndex] = useState(0);
+  const [generationNote, setGenerationNote] = useState<string | null>(null);
 
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [credits, setCredits] = useState<CreditStatus | null>(null);
@@ -147,75 +181,85 @@ export default function GeneratedLook({
   }, [status]);
 
   async function handleGenerate() {
-    if (!credits) return;
+    if (!credits || status === "generating") return;
     setStatus("generating");
     setError(null);
+    setGenerationNote(null);
     setCloseupData(null);
     setFullData(null);
+    setDebugClothingData(null);
+    setDebugHairData(null);
+    setSaved(false);
 
     try {
       const { base64, mimeType } = imageToBase64(bodyImage);
 
-      const facialHairClause =
-        gender === "male" && facialHairPreference && facialHairPreference !== "none"
-          ? ` Additionally, facial hair: ${FACIAL_HAIR_PROMPT[facialHairPreference]}.`
-          : "";
-
-const fullPrompt = `
-Edit the supplied photograph.
-
-This is a photo-editing task, not a request to create
-a new photograph or a different person.
-
-Change ONLY the clothing.
-
-OCCASION:
-${occasion}
-
-REQUIRED CLOTHING:
-${dressPrompt}
-
-The selected clothing must be appropriate for the occasion.
-Do not change the clothing category or replace the person.
-
-STRICT REQUIREMENTS:
-- Preserve the exact same person's face and identity.
-- Preserve the original hairstyle and facial hair.
-- Preserve the original skin tone and body proportions.
-- Preserve the original pose and hand positions.
-- Preserve the original background and lighting.
-- Do not substitute another person or model.
-- Do not change the person's age or facial appearance.
-- Replace only the garments specified above.
-- Keep the full body visible from head to toe.
-- Produce a natural, photorealistic edit.
-
-If clothing boundaries require small adjustments,
-make only those necessary changes.
-`;
-      const res = await fetch("/api/generate-look", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ imageBase64: base64, mimeType, prompt: fullPrompt }),
+      // The styling rules shown to the user are intentionally separate from
+      // deterministic garment instructions sent to the image model.
+      const spec = buildImageEditSpec({
+        gender,
+        occasion,
+        wearPreference,
+        hairstylePreference: hairPrompt,
+        accessories: [], // Do not introduce unrequested accessories.
+        footwearPreference: undefined, // Clothing pass should preserve shoes.
       });
 
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.error || "Something went wrong generating your look.");
+      if (!spec.clothingDescription?.trim()) {
+        throw new Error("The selected outfit has no image-edit instructions.");
+      }
+      if (process.env.NODE_ENV === "development") {
+  console.log(
+    "FITNSCENT FEMALE CLOTHING PROMPT:",
+    buildClothingEditPrompt(spec)
+  );
+}
+if (process.env.NODE_ENV === "development") {
+  console.log(
+    "FITNSCENT FEMALE CLOTHING PROMPT:",
+    buildClothingEditPrompt(spec)
+  );
+}
+      const clothingEdit = await runGeminiEdit(
+        base64,
+        mimeType,
+        buildClothingEditPrompt(spec)
+      );
+      if (process.env.NODE_ENV === "development") {
+        setDebugClothingData(clothingEdit);
       }
 
-      const full = { imageBase64: data.imageBase64, mimeType: data.mimeType };
-      const closeup = await cropCloseup(full.imageBase64, full.mimeType);
+      let finalEdit = clothingEdit;
+      if (spec.changeHair && spec.hairstyleDescription?.trim()) {
+        try {
+          finalEdit = await runGeminiEdit(
+            clothingEdit.imageBase64,
+            clothingEdit.mimeType,
+            buildHairEditPrompt(spec)
+          );
+          if (process.env.NODE_ENV === "development") {
+            setDebugHairData(finalEdit);
+          }
+        } catch {
+          // Preserve the usable clothing result rather than hiding it if
+          // the optional second image-editing stage fails.
+          setGenerationNote(
+            "Your outfit was generated, but the hairstyle edit could not be completed. The preview shows the outfit-only result."
+          );
+        }
+      }
 
-      setFullData(full);
+      const closeup = await cropCloseup(finalEdit.imageBase64, finalEdit.mimeType);
+      setFullData(finalEdit);
       setCloseupData(closeup);
       setStatus("done");
       onResult?.({
-        imageBase64: full.imageBase64,
-        mimeType: full.mimeType,
-        url: `data:${full.mimeType};base64,${full.imageBase64}`,
+        ...finalEdit,
+        url: `data:${finalEdit.mimeType};base64,${finalEdit.imageBase64}`,
       });
 
+      // A finished user-visible result consumes only one app credit, although
+      // the service may incur two underlying Gemini image-generation calls.
       const isUnlimited = userEmail ? UNLIMITED_EMAILS.includes(userEmail) : false;
       if (!isUnlimited) {
         const consumed = await consumeCredit(credits);
@@ -418,6 +462,51 @@ make only those necessary changes.
 
       {status === "done" && closeupData && fullData && (
         <div>
+          {generationNote && (
+            <p className="scanner-error" role="status" style={{ marginBottom: "0.7rem" }}>
+              {generationNote}
+            </p>
+          )}
+          {process.env.NODE_ENV === "development" && debugClothingData && (
+            <section
+              aria-label="Local image edit stage diagnostics"
+              style={{ marginBottom: "1rem", padding: "0.75rem", border: "1px solid #b8a582", borderRadius: "0.75rem" }}
+            >
+              <p style={{ marginBottom: "0.5rem", fontWeight: 700 }}>
+                Local diagnostic — original vs clothing vs hairstyle
+              </p>
+              <p style={{ marginBottom: "0.75rem", fontSize: "0.85rem" }}>
+                Compare identity, pose, outfit and hair at each stage. These images are not automatically verified.
+                This panel is visible only on the development build.
+              </p>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(135px, 1fr))", gap: "0.65rem" }}>
+                <div>
+                  <strong style={{ display: "block", marginBottom: "0.3rem" }}>Original</strong>
+                  <img src={bodyImage.src} alt="Original full body uploaded image" style={{ width: "100%", height: "auto", objectFit: "contain" }} />
+                </div>
+                <div>
+                  <strong style={{ display: "block", marginBottom: "0.3rem" }}>Clothing pass</strong>
+                  <img
+                    src={`data:${debugClothingData.mimeType};base64,${debugClothingData.imageBase64}`}
+                    alt="Image after clothing-only edit"
+                    style={{ width: "100%", height: "auto", objectFit: "contain" }}
+                  />
+                </div>
+                <div>
+                  <strong style={{ display: "block", marginBottom: "0.3rem" }}>Hairstyle pass</strong>
+                  {debugHairData ? (
+                    <img
+                      src={`data:${debugHairData.mimeType};base64,${debugHairData.imageBase64}`}
+                      alt="Image after hairstyle edit"
+                      style={{ width: "100%", height: "auto", objectFit: "contain" }}
+                    />
+                  ) : (
+                    <p style={{ fontSize: "0.85rem" }}>Not completed or not requested.</p>
+                  )}
+                </div>
+              </div>
+            </section>
+          )}
           <div className="dual-result">
             <div className="dual-result-item">
               <span className="dual-result-label">Close-up</span>
@@ -454,7 +543,10 @@ make only those necessary changes.
               setStatus("idle");
               setCloseupData(null);
               setFullData(null);
+              setDebugClothingData(null);
+              setDebugHairData(null);
               setSaved(false);
+              setGenerationNote(null);
               onResult?.(null);
             }}
           >

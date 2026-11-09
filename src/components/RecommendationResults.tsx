@@ -94,6 +94,21 @@ const dressPrompt =
        Preserve the person's existing shoes, watch,
        hairstyle, face, and other personal features.
        Do not add a cap, sunglasses, or other accessories.`
+
+  : answers.gender === "male" &&
+    answers.occasion === "hawaiian"
+    ? `Replace the existing outfit with:
+       one relaxed short-sleeved Hawaiian print shirt,
+       with a camp collar (Cuban collar),
+       worn untucked,
+       paired with casual above-knee or knee-length shorts
+       in a light neutral shade such as beige, cream, or stone.
+       The look should feel tropical, relaxed, and vacation-appropriate.
+       No trousers, no blazer, no formal shirt, and no tie.
+       Do not add a cap or sunglasses.
+       Preserve the person's existing face, body, pose, skin tone,
+       watch, and recognizable identity.`
+
     : `${outfit.silhouette}, with a ${outfit.neckline}`;
 
 
@@ -117,6 +132,7 @@ const dressPrompt =
       <div className="results-grid bleed">
         <div className="results-photo-col sticky-panel">
 <GeneratedLook
+wearPreference={wearPreference}
   image={image}
   bodyImage={bodyImage}
   dressPrompt={dressPrompt}

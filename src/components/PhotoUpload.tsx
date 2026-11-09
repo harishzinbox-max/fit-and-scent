@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { trackEvent } from "@/lib/analytics";
+import { checkForMissingLowerImage } from "@/lib/fullBodyPhotoValidation";
 
 interface Props {
   onImageReady: (imageEl: HTMLImageElement) => void;
@@ -77,6 +78,7 @@ export default function PhotoUpload({
   confirmLabel = "Looks good, continue →",
 }: Props) {
   const [preview, setPreview] = useState<string | null>(null);
+  const [photoError, setPhotoError] = useState<string | null>(null);
   const [rawImage, setRawImage] = useState<HTMLImageElement | null>(null);
   const [zoom, setZoom] = useState(1);
   const [panX, setPanX] = useState(0);
@@ -119,6 +121,7 @@ export default function PhotoUpload({
   }
 
   function handleFile(file: File) {
+    setPhotoError(null);
     trackEvent(
   guideType === "body" ? "body_upload" : "photo_upload"
 );
@@ -132,7 +135,18 @@ export default function PhotoUpload({
 
     const img = new Image();
     img.crossOrigin = "anonymous";
-    img.onload = () => setRawImage(img);
+    img.onload = () => {
+      if (guideType === "body") {
+        const checked = checkForMissingLowerImage(img, img.naturalWidth, img.naturalHeight);
+        if (!checked.ok) {
+          setRawImage(null);
+          setPhotoError(checked.reason ?? "Please select a complete full-body photograph.");
+          return;
+        }
+      }
+      setRawImage(img);
+    };
+    img.onerror = () => setPhotoError("Could not read this image. Please try a different JPG or PNG.");
     img.src = url;
   }
 
@@ -227,7 +241,14 @@ export default function PhotoUpload({
     canvas.width = EXPORT_WIDTH;
     canvas.height = exportHeight;
 
-    const ctx = canvas.getContext("2d")!;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) {
+      setPhotoError("Unable to prepare your photograph. Please try another image.");
+      return;
+    }
+    // Avoid transparent regions becoming black when encoded as JPEG.
+    ctx.fillStyle = "#f7f4ee";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     ctx.drawImage(
       rawImage,
@@ -237,6 +258,14 @@ export default function PhotoUpload({
       drawnH
     );
 
+    if (guideType === "body") {
+      const checked = checkForMissingLowerImage(canvas, canvas.width, canvas.height);
+      if (!checked.ok) {
+        setPhotoError(checked.reason ?? "Please upload a complete head-to-toe photograph.");
+        return;
+      }
+    }
+    setPhotoError(null);
     const finalImg = new Image();
 
     finalImg.crossOrigin = "anonymous";
@@ -244,6 +273,7 @@ export default function PhotoUpload({
     finalImg.onload = () => {
       onImageReady(finalImg);
     };
+    finalImg.onerror = () => setPhotoError("Could not create your image. Please choose another photograph.");
 
     finalImg.src =
       canvas.toDataURL("image/jpeg", 0.92);
@@ -264,6 +294,7 @@ export default function PhotoUpload({
 
   return (
     <div className="upload-card">
+      {photoError && !preview && <p className="scanner-error" role="alert">{photoError}</p>}
       <input
         ref={inputRef}
         type="file"
@@ -313,6 +344,8 @@ export default function PhotoUpload({
 
             {guideType === "body" && <BodyGuide />}
           </div>
+
+          {photoError && <p className="scanner-error" role="alert">{photoError}</p>}
 
           <div className="crop-controls">
             <span>Zoom</span>
