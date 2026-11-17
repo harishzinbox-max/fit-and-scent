@@ -141,6 +141,9 @@ export default function GeneratedLook({
   const [saving, setSaving] = useState(false);
   const [messageIndex, setMessageIndex] = useState(0);
   const [generationNote, setGenerationNote] = useState<string | null>(null);
+  // Default off: never change hair unless the user explicitly opts in.
+  const [applyRecommendedHair, setApplyRecommendedHair] = useState(false);
+  const [hairEditCompleted, setHairEditCompleted] = useState(false);
 
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [credits, setCredits] = useState<CreditStatus | null>(null);
@@ -190,6 +193,7 @@ export default function GeneratedLook({
     setDebugClothingData(null);
     setDebugHairData(null);
     setSaved(false);
+    setHairEditCompleted(false);
 
     try {
       const { base64, mimeType } = imageToBase64(bodyImage);
@@ -200,7 +204,7 @@ export default function GeneratedLook({
         gender,
         occasion,
         wearPreference,
-        hairstylePreference: hairPrompt,
+        hairstylePreference: applyRecommendedHair ? hairPrompt : undefined,
         accessories: [], // Do not introduce unrequested accessories.
         footwearPreference: undefined, // Clothing pass should preserve shoes.
       });
@@ -208,18 +212,7 @@ export default function GeneratedLook({
       if (!spec.clothingDescription?.trim()) {
         throw new Error("The selected outfit has no image-edit instructions.");
       }
-      if (process.env.NODE_ENV === "development") {
-  console.log(
-    "FITNSCENT FEMALE CLOTHING PROMPT:",
-    buildClothingEditPrompt(spec)
-  );
-}
-if (process.env.NODE_ENV === "development") {
-  console.log(
-    "FITNSCENT FEMALE CLOTHING PROMPT:",
-    buildClothingEditPrompt(spec)
-  );
-}
+
       const clothingEdit = await runGeminiEdit(
         base64,
         mimeType,
@@ -237,6 +230,7 @@ if (process.env.NODE_ENV === "development") {
             clothingEdit.mimeType,
             buildHairEditPrompt(spec)
           );
+          setHairEditCompleted(true);
           if (process.env.NODE_ENV === "development") {
             setDebugHairData(finalEdit);
           }
@@ -358,7 +352,9 @@ if (process.env.NODE_ENV === "development") {
         occasion,
         gender,
         outfitSummary,
-        hairstyleSummary,
+        hairstyleSummary: hairEditCompleted
+          ? hairstyleSummary
+          : "Original hairstyle (no hairstyle change applied)",
         fragranceSummary,
         accessorySummary,
       });
@@ -428,6 +424,24 @@ if (process.env.NODE_ENV === "development") {
               ? "1 free try available"
               : `${credits.purchasedCredits} tries remaining`}
           </p>
+          {hairPrompt.trim() && (
+            <label
+              style={{ display: "flex", alignItems: "flex-start", gap: "0.65rem", margin: "0.8rem 0", cursor: "pointer" }}
+            >
+              <input
+                type="checkbox"
+                checked={applyRecommendedHair}
+                onChange={(event) => setApplyRecommendedHair(event.target.checked)}
+                style={{ marginTop: "0.2rem" }}
+              />
+              <span>
+                <strong>Also try the recommended hairstyle</strong>
+                <span style={{ display: "block", fontSize: "0.8rem", opacity: 0.75 }}>
+                  Optional — leave unchecked to keep your current hair. This may require an extra AI edit.
+                </span>
+              </span>
+            </label>
+          )}
           <button
             type="button"
             className="quiz-submit"
@@ -547,6 +561,7 @@ if (process.env.NODE_ENV === "development") {
               setDebugHairData(null);
               setSaved(false);
               setGenerationNote(null);
+              setHairEditCompleted(false);
               onResult?.(null);
             }}
           >

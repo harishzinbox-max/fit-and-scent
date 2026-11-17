@@ -78,8 +78,9 @@ export function buildImageEditSpec({
 
   const clothingDescription =
     selectedGarment(gender, occasion, wearPreference) ?? template.clothing;
-  const hairstyleDescription =
-    hairstylePreference?.trim() || template.defaultHairstyle || "natural, tidy hairstyle";
+  // Hair editing is strictly opt-in. Do not substitute occasion defaults.
+  const hairstyleDescription = hairstylePreference?.trim() ?? "";
+  const changeHair = hairstyleDescription.length > 0;
 
   // Keep negative constraints from contradicting explicitly selected clothes.
   const forbiddenItems = template.forbidden.filter((item) => {
@@ -95,7 +96,7 @@ export function buildImageEditSpec({
     footwearDescription: footwearPreference?.trim() || template.footwear,
     accessoryDescription: accessories?.filter(Boolean).join(", ") || "",
     forbiddenItems,
-    changeHair: true,
+    changeHair,
     changeClothing: true,
   };
 }
